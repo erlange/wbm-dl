@@ -1,0 +1,40 @@
+{
+  "OptionName": "Options",
+  "Options": [
+    {
+      "Name": "-o",
+      "Value": "c:/outputdir",
+      "Description": "Output/destination directoyy to which you wish to save \nIf omitted, only displays the lists",
+      "IsRequired": false,
+      "Example": "\twbm-dl -url http://example.com -o c:/temp"
+    },
+    {
+      "Name": "-url",
+      "Value": "http://erlange.github.io",
+      "Description": "The URL of the archived web site.",
+      "IsRequired": true,
+      "Example": "\twbm-dl -url http://example.com \n\twbm-dl -url http://example.com -o c:/temp"
+    },
+    {
+      "Name": "-from",
+      "Value": "20180212132031",
+      "Description": "From timestamp. Limits the archived result SINCE this timestamp. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, gets since the earliest timestamp available. ",
+      "IsRequired": false,
+      "Example": "\twbm-dl -url http://example.com -from 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -from 2016 -o c:/temp"
+    },
+    {
+      "Name": "-to",
+      "Value": "20180212132031",
+      "Description": "To timestamp. Limits the archived result  UNTIL this timestamps. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, gets until the latest timestamp available. ",
+      "IsRequired": false,
+      "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
+    },
+    {
+      "Name": "-limit",
+      "Value": "1",
+      "Description": "Limits the first N or the last N results. Negative number limits the last N results.",
+      "IsRequired": false,
+      "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
+    }
+  ]
+}
