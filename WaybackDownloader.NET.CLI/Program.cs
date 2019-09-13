@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
+
 namespace com.erlange.wbmdl
 {
     public class Program
@@ -19,9 +20,9 @@ namespace com.erlange.wbmdl
 
             if (args.Length == 0)
             {
-                //ShowHelp();
-                //tt();
-                ReadResource();
+                ShowDictionary();
+                //BuildUrl();
+                
                 
             }
             else
@@ -36,47 +37,15 @@ namespace com.erlange.wbmdl
 
         }
 
-        public static void ShowHelp()
+        public static void ShowDictionary()
         {
-            Console.WriteLine(Resources.url.Replace("@@", "\t"));
-            Console.WriteLine(Resources.o.Replace("@@", "\t"));
-            Console.WriteLine(Resources.from.Replace("@@", "\t"));
-            Console.WriteLine(Resources.to.Replace("@@", "\t"));
-            Console.WriteLine(Resources.list.Replace("@@", "\t"));
-
-            List<Option> options = new List<Option>();
-            options.Add(new Option()
-            {
-                Name = "-'",
-                Value = "daasd",
-                IsRequired = true,
-                Description = "ada"
-            });
-            
-            var c = options.Select((a) => a.Name = "sdsdf").ToList();
-            OptionRepository r = new OptionRepository();
-        }
-
-        public void ParseArgs(string[] args)
-        {
-
-
-        }
-
-        public static void ReadResource()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string resourceName = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(a => a.EndsWith("params.json")).FirstOrDefault();
-            System.IO.Stream stream = assembly.GetManifestResourceStream(resourceName);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(OptionDictionary));
-            OptionDictionary optionDictionary = (OptionDictionary)serializer.ReadObject(stream);
-
+            OptionDictionary optionDictionary = LoadDictionary();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2016 - eri.airlangga@gmail.com");
             Console.WriteLine();
             Console.ResetColor();
             Console.WriteLine("Usage:");
-            for (int i=0;i<optionDictionary.Options.Count;i++)
+            for (int i = 0; i < optionDictionary.Options.Count; i++)
             {
 
                 if (Console.CursorTop > 20)
@@ -96,42 +65,40 @@ namespace com.erlange.wbmdl
                 Console.WriteLine();
 
             }
+
         }
 
-
-        public static void tt()
+        public void ParseArgs(string[] args)
         {
-            IList<Option> options = new List<Option>
-            {
-                new Option() { Name = "-o", Description = "oo osdf osdfs", IsRequired = true, Value = "ovalue" },
-                new Option() { Name = "-url", Description = "Ini adalah URL nya", IsRequired = false, Value = "http://google.com" },
-                new Option() { Name = "-From", Description = "From tangggal", IsRequired = false, Value = "20180212132031" }
-            };
 
-            OptionDictionary optionDictionary = new OptionDictionary() { Name = "Options", Options = options };
+        }
 
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof (OptionDictionary));
+        static void BuildUrl()
+        {
+            var builder = new System.UriBuilder("http://ukmdepok.co.id");
+            var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            query["da"] = "asda";
+            query["from"] = "212324";
+            builder.Query = query.ToString();
+            string url = builder.ToString();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(url);
+            Console.ResetColor();
+        }
 
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            ser.WriteObject(ms, optionDictionary);
-            
-
-            //using ( var jsonrw = JsonReaderWriterFactory.CreateJsonWriter(ms, Encoding.UTF8))
-            //{
-            //    ser.WriteObject(ms, optionDictionary);
-            //    jsonrw.Flush();
-            //    Console.WriteLine("ms: " + ms.Length);
-
-            //    //Console.WriteLine("aaa: " + rd.CurrentEncoding.GetString(ms.ToArray()));
-
-            //}
-
-            System.IO.StreamReader rd = new System.IO.StreamReader(ms, Encoding.UTF8);
-            ms.Position = 0;
-            Console.WriteLine("asd: " + rd.ReadToEnd());
+        private static OptionDictionary LoadDictionary()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string resourceName = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(a => a.EndsWith("params.json")).FirstOrDefault();
+            System.IO.Stream stream = assembly.GetManifestResourceStream(resourceName);
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(OptionDictionary));
+            OptionDictionary optionDictionary = (OptionDictionary)serializer.ReadObject(stream);
+            return optionDictionary;
 
 
         }
+
+
 
 
     }
@@ -148,7 +115,6 @@ namespace com.erlange.wbmdl
             if (args.Length == 1)
             {
                 System.Net.WebClient wc = new System.Net.WebClient();
-                
             }
             return isValid;
         }
@@ -168,7 +134,7 @@ namespace com.erlange.wbmdl
     }
 
     [DataContract(Name ="Option")]
-    class Option 
+    internal class Option 
     {
         [DataMember(Name = "Name", Order = 0)]
         public string Name { get; set; }
@@ -187,7 +153,7 @@ namespace com.erlange.wbmdl
     }
 
     [DataContract(Name ="OptionData")]
-    class OptionDictionary
+    internal class OptionDictionary
     {
         [DataMember(Name = "OptionName", Order = 0)]
         public string Name { get; set; }
