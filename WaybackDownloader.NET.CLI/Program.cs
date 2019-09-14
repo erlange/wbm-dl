@@ -14,53 +14,72 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        public static void Main(string[] args)
+        static OptionDictionary options = LoadOptions();
+
+        static void ShowBanner()
         {
-            Debug.WriteLine(args);
-
-            if (args.Length == 0)
-            {
-                ShowDictionary();
-                //BuildUrl();
-                
-                
-            }
-            else
-            {
-                
-                Console.WriteLine(args.Length);
-                Console.WriteLine(args.FirstOrDefault<string>());
-            }
-
-            Console.WriteLine("Press any key to exit");
-            Console.ReadKey();
-
-        }
-
-        public static void ShowDictionary()
-        {
-            OptionDictionary optionDictionary = LoadDictionary();
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2016 - eri.airlangga@gmail.com");
             Console.WriteLine();
             Console.ResetColor();
+        }
+
+        public static void Main(string[] args)
+        {
+            ShowBanner();
+            BuildUrl(args);
+            if (Debugger.IsAttached)
+            {
+                Console.WriteLine("Press any key to exit");
+                Console.ReadKey();
+            }
+        }
+
+        static bool IsValidArg(string arg, string option)
+        {
+            bool isValid = false;
+            isValid = isValid && arg.Trim().ToUpperInvariant() == option.Trim().ToUpperInvariant();
+            return isValid;
+        }
+
+        static void ShowSimpleOption()
+        {
+            Console.WriteLine("  Usage: wbm-dl [options]");
+            Console.WriteLine("  Usage: wbm-dl [url]");
+            Console.WriteLine();
+            Console.WriteLine ("  [options]:");
+            for (int i = 0; i < options.Items.Count; i++)
+            {
+                Console.WriteLine("      {0}\t{1}", options.Items[i].Name, options.Items[i].ShortDescription);
+            }
+            Console.WriteLine();
+            Console.WriteLine("  [url]:");
+            Console.WriteLine("      URL of the archived web site.");
+            Console.WriteLine();
+        }
+
+        static void ShowOptions()
+        {
             Console.WriteLine("Usage:");
-            for (int i = 0; i < optionDictionary.Options.Count; i++)
+            
+            for (int i = 0; i < options.Items.Count; i++)
             {
 
-                if (Console.CursorTop > 20)
-                {
-                    Console.ReadKey();
-                }
+                //if (Console.CursorTop > 20)
+                //{
+                //    Console.ReadKey();
+                //    Console.ReadKey();
+                //}
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(optionDictionary.Options[i].Name);
+                Console.WriteLine(options.Items[i].Name);
                 Console.ResetColor();
-                Console.WriteLine(optionDictionary.Options[i].Description);
+                Console.WriteLine(options.Items[i].Description);
                 //Console.WriteLine(optionDictionary.Options[i].IsRequired);
                 Console.WriteLine("Example:");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(optionDictionary.Options[i].Example);
+                Console.WriteLine(options.Items[i].Example);
                 Console.ResetColor();
                 Console.WriteLine();
 
@@ -73,20 +92,37 @@ namespace com.erlange.wbmdl
 
         }
 
-        static void BuildUrl()
+        static int BuildUrl(string[] args)
         {
-            var builder = new System.UriBuilder("http://ukmdepok.co.id");
+            string waybackUrl = "web.archive.org/cdx/search/cdx";
+            string url = "ukmdepok.co.id";
+
+            if (args.Length == 0)
+            {
+                ShowSimpleOption();
+                return 0;
+            }
+
+            if (args.Length == 1)
+            {
+                ShowSimpleOption();
+                return 0;
+            }
+
+            var builder = new System.UriBuilder(waybackUrl);
             var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            query["da"] = "asda";
+            query["url"] = url;
             query["from"] = "212324";
             builder.Query = query.ToString();
-            string url = builder.ToString();
+            string resultUrl = builder.ToString();
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(url);
+            Console.WriteLine(resultUrl);
             Console.ResetColor();
+            return 1;
         }
+        
 
-        private static OptionDictionary LoadDictionary()
+        private static OptionDictionary LoadOptions()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string resourceName = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(a => a.EndsWith("params.json")).FirstOrDefault();
@@ -94,12 +130,7 @@ namespace com.erlange.wbmdl
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(OptionDictionary));
             OptionDictionary optionDictionary = (OptionDictionary)serializer.ReadObject(stream);
             return optionDictionary;
-
-
         }
-
-
-
 
     }
 
@@ -142,13 +173,16 @@ namespace com.erlange.wbmdl
         [DataMember(Name = "Value", Order = 1)]
         public string Value { get; set; }
 
-        [DataMember(Name = "Description", Order = 2)]
+        [DataMember(Name = "ShortDescription", Order = 2)]
+        public string ShortDescription { get; set; }
+
+        [DataMember(Name = "Description", Order = 3)]
         public string Description { get; set; }
 
-        [DataMember(Name = "IsRequired", Order = 3)]
+        [DataMember(Name = "IsRequired", Order = 4)]
         public bool IsRequired { get; set; }
 
-        [DataMember(Name = "Example", Order = 4)]
+        [DataMember(Name = "Example", Order = 5)]
         public string Example { get; set; }
     }
 
@@ -158,7 +192,7 @@ namespace com.erlange.wbmdl
         [DataMember(Name = "OptionName", Order = 0)]
         public string Name { get; set; }
         [DataMember(Name = "Options", Order = 1)]
-        public IList<Option> Options { get; set; }
+        public IList<Option> Items { get; set; }
 
     }
 
@@ -210,5 +244,12 @@ namespace com.erlange.wbmdl
         T GetByName(string name);
     }
 
+}
+namespace com.erlange.wbmdl.helper
+{
+    class Utility
+    {
+
+    }
 }
 
