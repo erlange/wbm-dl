@@ -2,15 +2,25 @@
   "OptionName": "Options",
   "Options": [
     {
+      "Name": "-?",
+      "Value": "",
+      "ShortDescription": "Display detailed help message",
+      "Description": "This help message",
+      "IsRequired": false,
+      "Example": "\twbm-dl -?"
+    },
+    {
       "Name": "-o",
       "Value": "c:/outputdir",
-      "Description": "Output/destination directoyy to which you wish to save \nIf omitted, only displays the raw list",
+      "ShortDescription": "Output/destination directory.",
+      "Description": "Output/destination directory to which you wish to save \nIf omitted, only displays the raw list",
       "IsRequired": false,
       "Example": "\twbm-dl -url http://example.com -o c:/temp"
     },
     {
       "Name": "-url",
       "Value": "http://erlange.github.io",
+      "ShortDescription": "The URL of the archived web site.",
       "Description": "The URL of the archived web site.",
       "IsRequired": true,
       "Example": "\twbm-dl -url http://example.com \n\twbm-dl -url http://example.com -o c:/temp"
@@ -18,6 +28,7 @@
     {
       "Name": "-from",
       "Value": "20180212132031",
+      "ShortDescription": "From timestamp.",
       "Description": "From timestamp. Limits the archived result SINCE this timestamp. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results since the earliest timestamp available. ",
       "IsRequired": false,
       "Example": "\twbm-dl -url http://example.com -from 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -from 2016 -o c:/temp"
@@ -25,6 +36,7 @@
     {
       "Name": "-to",
       "Value": "20180212132031",
+      "ShortDescription": "To timestamp.",
       "Description": "To timestamp. Limits the archived result  UNTIL this timestamps. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results until the latest timestamp available. ",
       "IsRequired": false,
       "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
@@ -32,6 +44,7 @@
     {
       "Name": "-limit",
       "Value": "1",
+      "ShortDescription": "Limits the first N or the last N results.",
       "Description": "Limits the first N or the last N results. Negative number limits the last N results.",
       "IsRequired": false,
       "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
@@ -39,6 +52,7 @@
     {
       "Name": "-list",
       "Value": "1",
+      "ShortDescription": "Displays the raw list.",
       "Description": "Displays the raw list. When used with -o will save the list",
       "IsRequired": false,
       "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
@@ -46,7 +60,8 @@
     {
       "Name": "-all",
       "Value": "1",
-      "Description": "Retrieves all status codes.  When omitted only retrieves the 200 status code.",
+      "ShortDescription": "Retrieves all status codes.",
+      "Description": "Retrieves all HTTP status codes.  When omitted only retrieves the 200 HTTP status code.",
       "IsRequired": false,
       "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
     }

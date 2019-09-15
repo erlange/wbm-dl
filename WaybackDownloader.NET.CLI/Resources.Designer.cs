@@ -59,50 +59,5 @@ namespace com.erlange.wbmdl {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to -from @@ From timestamp. Use 1 to 14 digit with the format: yyyyMMddhhmmss .
-        /// </summary>
-        internal static string from {
-            get {
-                return ResourceManager.GetString("from", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to -l @@ Only display the URL, won&apos;t be downloaded. .
-        /// </summary>
-        internal static string list {
-            get {
-                return ResourceManager.GetString("list", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to -o @@ Output/destination local path to which you wish to save .
-        /// </summary>
-        internal static string o {
-            get {
-                return ResourceManager.GetString("o", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to -to @@ To timestamp. Use 1 to 14 digit for with the format: yyyyMMddhhmmss.
-        /// </summary>
-        internal static string to {
-            get {
-                return ResourceManager.GetString("to", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to -url @@ The URL of the archived web site. Must omit the prefix http:// or https://.
-        /// </summary>
-        internal static string url {
-            get {
-                return ResourceManager.GetString("url", resourceCulture);
-            }
-        }
     }
 }

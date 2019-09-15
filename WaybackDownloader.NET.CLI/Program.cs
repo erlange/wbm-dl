@@ -14,7 +14,8 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        static OptionDictionary options = LoadOptions();
+        private static OptionDictionary options = LoadOptions();
+        private static string BaseUrl = "web.archive.org/cdx/search/cdx";
 
         static void ShowBanner()
         {
@@ -94,7 +95,6 @@ namespace com.erlange.wbmdl
 
         static int BuildUrl(string[] args)
         {
-            string waybackUrl = "web.archive.org/cdx/search/cdx";
             string url = "ukmdepok.co.id";
 
             if (args.Length == 0)
@@ -105,22 +105,48 @@ namespace com.erlange.wbmdl
 
             if (args.Length == 1)
             {
-                ShowSimpleOption();
-                return 0;
-            }
+                if (args[0].Trim().IsValidURL())
+                {
+                    UriBuilder builder = new System.UriBuilder(BaseUrl);
+                    System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    query["url"] = args[0] + "/*";
+                    builder.Query = query.ToString();
+                    string resultUrl = builder.ToString();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
 
-            var builder = new System.UriBuilder(waybackUrl);
-            var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            query["url"] = url;
-            query["from"] = "212324";
-            builder.Query = query.ToString();
-            string resultUrl = builder.ToString();
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(resultUrl);
-            Console.ResetColor();
-            return 1;
+                    Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
+                    Console.ResetColor();
+
+                    Console.WriteLine(GetResponseString(resultUrl));
+
+                    return 1;
+                }
+            }
+            return 0;
+
         }
-        
+
+        static string GetResponseString(string url)
+        {
+            string result = string.Empty;
+            try
+            {
+                System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                request.Method = "GET";
+                using ( System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
+                {
+                    using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                    {
+                        result = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex )
+            {
+                result = ex.Message;
+            }
+            return result;
+        }
 
         private static OptionDictionary LoadOptions()
         {
@@ -142,10 +168,6 @@ namespace com.erlange.wbmdl
             if (args.Length == 0)
             {
                 return false;
-            }
-            if (args.Length == 1)
-            {
-                System.Net.WebClient wc = new System.Net.WebClient();
             }
             return isValid;
         }
