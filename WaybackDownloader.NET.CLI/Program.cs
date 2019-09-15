@@ -95,7 +95,7 @@ namespace com.erlange.wbmdl
 
         static int BuildUrl(string[] args)
         {
-            string url = "ukmdepok.co.id";
+            string url = string.Empty;
 
             if (args.Length == 0)
             {
@@ -105,11 +105,12 @@ namespace com.erlange.wbmdl
 
             if (args.Length == 1)
             {
-                if (args[0].Trim().IsValidURL())
+                if (args[0].Trim().IsValidURL() && !args[0].Trim().ToLowerInvariant().Equals("-url"))
                 {
                     UriBuilder builder = new System.UriBuilder(BaseUrl);
                     System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                     query["url"] = args[0] + "/*";
+                    query["fl"] = args[0] + "timestamp,original,statuscode";
                     builder.Query = query.ToString();
                     string resultUrl = builder.ToString();
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -129,15 +130,24 @@ namespace com.erlange.wbmdl
         static string GetResponseString(string url)
         {
             string result = string.Empty;
+            int count = 0;
             try
             {
                 System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
                 request.Method = "GET";
-                using ( System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
+                using (System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
                 {
                     using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        result = reader.ReadToEnd();
+                        //if (reader.ReadLine() != null)
+                        //{
+                        //}
+                        while (reader.ReadLine() != null)
+                        {
+                            count++;
+                        }
+                        result = count.ToString() + " item(s) archived.";
+
                     }
                 }
             }
