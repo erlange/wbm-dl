@@ -60,10 +60,10 @@
     {
       "Name": "-all",
       "Value": "1",
-      "ShortDescription": "Retrieves all status codes.",
-      "Description": "Retrieves all HTTP status codes.  When omitted only retrieves the 200 HTTP status code.",
+      "ShortDescription": "Retrieves all snapshots/timestamp.",
+      "Description": "Retrieves all snapshots for each timestamp.  When omitted only retrieves one snapshot per each timestamp.",
       "IsRequired": false,
-      "Example": "\twbm-dl -url http://example.com -to 20160201 \n\twbm-dl -url http://example.com -from 2016 \n\twbm-dl -url http://example.com -to 2016 -o c:/temp"
+      "Example": "\twbm-dl -url http://example.com -all \n\twbm-dl -url http://example.com -all -o c:/temp"
     }
   ]
 }

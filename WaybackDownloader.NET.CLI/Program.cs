@@ -110,7 +110,10 @@ namespace com.erlange.wbmdl
                     UriBuilder builder = new System.UriBuilder(BaseUrl);
                     System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                     query["url"] = args[0] + "/*";
-                    query["fl"] = args[0] + "timestamp,original,statuscode";
+                    query["fl"] = "timestamp,original,statuscode";
+                    //query["collapse"] = "digest";
+                    query["collapse"] = "urlkey";
+                    query["filter"] = "statuscode:200";
                     builder.Query = query.ToString();
                     string resultUrl = builder.ToString();
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -118,6 +121,14 @@ namespace com.erlange.wbmdl
                     Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
                     Console.ResetColor();
 
+                    //System.Threading.Tasks.Task<string> t = new System.Threading.Tasks.Task<string>(() => GetResponseString(resultUrl));
+                    //t.Start();
+                    //t.Wait();
+                    //if (t.IsCompleted)
+                    //{
+                    //    Console.WriteLine(t.Result);
+
+                    //}
                     Console.WriteLine(GetResponseString(resultUrl));
 
                     return 1;
@@ -126,6 +137,8 @@ namespace com.erlange.wbmdl
             return 0;
 
         }
+
+
 
         static string GetResponseString(string url)
         {
@@ -147,7 +160,9 @@ namespace com.erlange.wbmdl
                             count++;
                         }
                         result = count.ToString() + " item(s) archived.";
+                        
 
+                        
                     }
                 }
             }
@@ -167,6 +182,7 @@ namespace com.erlange.wbmdl
             OptionDictionary optionDictionary = (OptionDictionary)serializer.ReadObject(stream);
             return optionDictionary;
         }
+
 
     }
 
@@ -276,12 +292,6 @@ namespace com.erlange.wbmdl
         T GetByName(string name);
     }
 
-}
-namespace com.erlange.wbmdl.helper
-{
-    class Utility
-    {
 
-    }
 }
 
