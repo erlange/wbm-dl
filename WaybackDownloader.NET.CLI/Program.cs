@@ -14,7 +14,6 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        private static OptionDictionary options = LoadOptions();
         private static string BaseUrl = "web.archive.org/cdx/search/cdx";
 
         static void ShowBanner()
@@ -57,44 +56,7 @@ namespace com.erlange.wbmdl
             return isValid;
         }
 
-        static void ShowSimpleOption()
-        {
-            Console.WriteLine("  Usage: wbm-dl [options]");
-            Console.WriteLine("  Usage: wbm-dl [url]");
-            Console.WriteLine();
-            Console.WriteLine ("  [options]:");
-            for (int i = 0; i < options.Items.Count; i++)
-            {
-                Console.WriteLine("      {0}\t{1}", options.Items[i].Name, options.Items[i].ShortDescription);
-            }
-            Console.WriteLine();
-            Console.WriteLine("  [url]:");
-            Console.WriteLine("      URL of the archived web site.");
-            Console.WriteLine();
-        }
 
-        static void ShowOptions()
-        {
-            Console.WriteLine("Usage:");
-            
-            for (int i = 0; i < options.Items.Count; i++)
-            {
-
-
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(options.Items[i].Name);
-                Console.ResetColor();
-                Console.WriteLine(options.Items[i].Description);
-                //Console.WriteLine(optionDictionary.Options[i].IsRequired);
-                Console.WriteLine("Example:");
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(options.Items[i].Example);
-                Console.ResetColor();
-                Console.WriteLine();
-
-            }
-
-        }
 
         public void ParseArgs(string[] args)
         {
@@ -107,7 +69,6 @@ namespace com.erlange.wbmdl
 
             if (args.Length == 0)
             {
-                ShowSimpleOption();
                 return 0;
             }
 
@@ -171,15 +132,7 @@ namespace com.erlange.wbmdl
             return result;
         }
 
-        private static OptionDictionary LoadOptions()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string resourceName = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(a => a.EndsWith("params.json")).FirstOrDefault();
-            System.IO.Stream stream = assembly.GetManifestResourceStream(resourceName);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(OptionDictionary));
-            OptionDictionary optionDictionary = (OptionDictionary)serializer.ReadObject(stream);
-            return optionDictionary;
-        }
+
 
 
     }
@@ -210,85 +163,7 @@ namespace com.erlange.wbmdl
 
     }
 
-    [DataContract(Name ="Option")]
-    internal class Option 
-    {
-        [DataMember(Name = "Name", Order = 0)]
-        public string Name { get; set; }
 
-        [DataMember(Name = "Value", Order = 1)]
-        public string Value { get; set; }
-
-        [DataMember(Name = "ShortDescription", Order = 2)]
-        public string ShortDescription { get; set; }
-
-        [DataMember(Name = "Description", Order = 3)]
-        public string Description { get; set; }
-
-        [DataMember(Name = "IsRequired", Order = 4)]
-        public bool IsRequired { get; set; }
-
-        [DataMember(Name = "Example", Order = 5)]
-        public string Example { get; set; }
-    }
-
-    [DataContract(Name ="OptionData")]
-    internal class OptionDictionary
-    {
-        [DataMember(Name = "OptionName", Order = 0)]
-        public string Name { get; set; }
-        [DataMember(Name = "Options", Order = 1)]
-        public IList<Option> Items { get; set; }
-
-    }
-
-
-    [CollectionDataContract]
-    class OptionRepository : IEnumerable<Option>, IOptionRepository<Option>
-    {
-        IList<Option> options = null;
-
-        public OptionRepository()
-        {
-            options=new List<Option>();
-        }
-
-        public OptionRepository(IList<Option> optionList)
-        {
-            options = optionList;
-        }
-
-        public void Add(Option option)
-        {
-            options.Add(option);
-        }
-
-        public IList<Option> GetAll()
-        {
-            return options;
-        }
-
-        public Option GetByName(string name)
-        {
-            return options.Where(a => a.Name == name).FirstOrDefault();
-        }
-
-        public IEnumerator<Option> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    interface IOptionRepository<T> where T : class
-    {
-        IList<T> GetAll();
-        T GetByName(string name);
-    }
 
     class Options
     {
