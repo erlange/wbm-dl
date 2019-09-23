@@ -67,17 +67,10 @@ namespace com.erlange.wbmdl
             for (int i = 0; i < options.Items.Count; i++)
             {
 
-                //if (Console.CursorTop > 20)
-                //{
-                //    Console.ReadKey();
-                //    Console.ReadKey();
-                //}
-
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(options.Items[i].Name);
                 Console.ResetColor();
                 Console.WriteLine(options.Items[i].Description);
-                //Console.WriteLine(optionDictionary.Options[i].IsRequired);
                 Console.WriteLine("Example:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(options.Items[i].Example);
@@ -121,14 +114,7 @@ namespace com.erlange.wbmdl
                     Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
                     Console.ResetColor();
 
-                    //System.Threading.Tasks.Task<string> t = new System.Threading.Tasks.Task<string>(() => GetResponseString(resultUrl));
-                    //t.Start();
-                    //t.Wait();
-                    //if (t.IsCompleted)
-                    //{
-                    //    Console.WriteLine(t.Result);
 
-                    //}
                     Console.WriteLine(GetResponseString(resultUrl));
 
                     return 1;
@@ -152,16 +138,12 @@ namespace com.erlange.wbmdl
                 {
                     using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        //if (reader.ReadLine() != null)
-                        //{
-                        //}
+    
                         while (reader.ReadLine() != null)
                         {
                             count++;
                         }
                         result = count.ToString() + " item(s) archived.";
-                        
-
                         
                     }
                 }
@@ -245,52 +227,52 @@ namespace com.erlange.wbmdl
     }
 
 
-    [CollectionDataContract]
-    class OptionRepository : IEnumerable<Option>, IOptionRepository<Option>
-    {
-        IList<Option> options = null;
+    //[CollectionDataContract]
+    //class OptionRepository : IEnumerable<Option>, IOptionRepository<Option>
+    //{
+    //    IList<Option> options = null;
 
-        public OptionRepository()
-        {
-            options=new List<Option>();
-        }
+    //    public OptionRepository()
+    //    {
+    //        options=new List<Option>();
+    //    }
 
-        public OptionRepository(IList<Option> optionList)
-        {
-            options = optionList;
-        }
+    //    public OptionRepository(IList<Option> optionList)
+    //    {
+    //        options = optionList;
+    //    }
 
-        public void Add(Option option)
-        {
-            options.Add(option);
-        }
+    //    public void Add(Option option)
+    //    {
+    //        options.Add(option);
+    //    }
 
-        public IList<Option> GetAll()
-        {
-            return options;
-        }
+    //    public IList<Option> GetAll()
+    //    {
+    //        return options;
+    //    }
 
-        public Option GetByName(string name)
-        {
-            return options.Where(a => a.Name == name).FirstOrDefault();
-        }
+    //    public Option GetByName(string name)
+    //    {
+    //        return options.Where(a => a.Name == name).FirstOrDefault();
+    //    }
 
-        public IEnumerator<Option> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+    //    public IEnumerator<Option> GetEnumerator()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    IEnumerator IEnumerable.GetEnumerator()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 
-    interface IOptionRepository<T> where T : class
-    {
-        IList<T> GetAll();
-        T GetByName(string name);
-    }
+    //interface IOptionRepository<T> where T : class
+    //{
+    //    IList<T> GetAll();
+    //    T GetByName(string name);
+    //}
 
 
 }
