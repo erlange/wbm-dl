@@ -31,7 +31,6 @@ namespace com.erlange.wbmdl
         public static void Main(string[] args)
         {
             ShowBanner();
-            //BuildUrl(args);
 
             var parser = Parser.Default;
             var result = parser.ParseArguments<Options>(args).MapResult(
@@ -81,11 +80,6 @@ namespace com.erlange.wbmdl
             for (int i = 0; i < options.Items.Count; i++)
             {
 
-                //if (Console.CursorTop > 20)
-                //{
-                //    Console.ReadKey();
-                //    Console.ReadKey();
-                //}
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(options.Items[i].Name);
@@ -135,14 +129,7 @@ namespace com.erlange.wbmdl
                     Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
                     Console.ResetColor();
 
-                    //System.Threading.Tasks.Task<string> t = new System.Threading.Tasks.Task<string>(() => GetResponseString(resultUrl));
-                    //t.Start();
-                    //t.Wait();
-                    //if (t.IsCompleted)
-                    //{
-                    //    Console.WriteLine(t.Result);
 
-                    //}
                     Console.WriteLine(GetResponseString(resultUrl));
 
                     return 1;
@@ -166,9 +153,6 @@ namespace com.erlange.wbmdl
                 {
                     using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        //if (reader.ReadLine() != null)
-                        //{
-                        //}
                         while (reader.ReadLine() != null)
                         {
                             count++;
