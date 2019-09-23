@@ -8,8 +8,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Threading;
-using System.Threading.Tasks;
+using CommandLine;
 
 namespace com.erlange.wbmdl
 {
@@ -17,8 +16,6 @@ namespace com.erlange.wbmdl
     {
         private static OptionDictionary options = LoadOptions();
         private static string BaseUrl = "web.archive.org/cdx/search/cdx";
-        
-        
 
         static void ShowBanner()
         {
@@ -29,11 +26,12 @@ namespace com.erlange.wbmdl
             Console.ResetColor();
         }
 
+
+
         public static void Main(string[] args)
         {
             ShowBanner();
             BuildUrl(args);
-            
             if (Debugger.IsAttached)
             {
                 Console.WriteLine("Press any key to exit");
@@ -71,10 +69,17 @@ namespace com.erlange.wbmdl
             for (int i = 0; i < options.Items.Count; i++)
             {
 
+                //if (Console.CursorTop > 20)
+                //{
+                //    Console.ReadKey();
+                //    Console.ReadKey();
+                //}
+
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(options.Items[i].Name);
                 Console.ResetColor();
                 Console.WriteLine(options.Items[i].Description);
+                //Console.WriteLine(optionDictionary.Options[i].IsRequired);
                 Console.WriteLine("Example:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(options.Items[i].Example);
@@ -118,9 +123,16 @@ namespace com.erlange.wbmdl
                     Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
                     Console.ResetColor();
 
+                    //System.Threading.Tasks.Task<string> t = new System.Threading.Tasks.Task<string>(() => GetResponseString(resultUrl));
+                    //t.Start();
+                    //t.Wait();
+                    //if (t.IsCompleted)
+                    //{
+                    //    Console.WriteLine(t.Result);
 
-                    Task<string> task = new Task<string>(test);
+                    //}
                     Console.WriteLine(GetResponseString(resultUrl));
+
                     return 1;
                 }
             }
@@ -128,30 +140,30 @@ namespace com.erlange.wbmdl
 
         }
 
-        static string test()
-        {
-            return "";
-        }
+
+
         static string GetResponseString(string url)
         {
             string result = string.Empty;
             int count = 0;
             try
             {
-                System.Net.WebClient client = new System.Net.WebClient();
-                client.DownloadStringCompleted += Client_DownloadStringCompleted;
                 System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
                 request.Method = "GET";
                 using (System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
                 {
                     using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        
+                        //if (reader.ReadLine() != null)
+                        //{
+                        //}
                         while (reader.ReadLine() != null)
                         {
                             count++;
                         }
                         result = count.ToString() + " item(s) archived.";
+                        
+
                         
                     }
                 }
@@ -161,12 +173,6 @@ namespace com.erlange.wbmdl
                 result = ex.Message;
             }
             return result;
-        }
-
-        private static void Client_DownloadStringCompleted(object sender, System.Net.DownloadStringCompletedEventArgs e)
-        {
-            
-            throw new NotImplementedException();
         }
 
         private static OptionDictionary LoadOptions()
@@ -241,52 +247,85 @@ namespace com.erlange.wbmdl
     }
 
 
-    //[CollectionDataContract]
-    //class OptionRepository : IEnumerable<Option>, IOptionRepository<Option>
-    //{
-    //    IList<Option> options = null;
+    [CollectionDataContract]
+    class OptionRepository : IEnumerable<Option>, IOptionRepository<Option>
+    {
+        IList<Option> options = null;
 
-    //    public OptionRepository()
-    //    {
-    //        options=new List<Option>();
-    //    }
+        public OptionRepository()
+        {
+            options=new List<Option>();
+        }
 
-    //    public OptionRepository(IList<Option> optionList)
-    //    {
-    //        options = optionList;
-    //    }
+        public OptionRepository(IList<Option> optionList)
+        {
+            options = optionList;
+        }
 
-    //    public void Add(Option option)
-    //    {
-    //        options.Add(option);
-    //    }
+        public void Add(Option option)
+        {
+            options.Add(option);
+        }
 
-    //    public IList<Option> GetAll()
-    //    {
-    //        return options;
-    //    }
+        public IList<Option> GetAll()
+        {
+            return options;
+        }
 
-    //    public Option GetByName(string name)
-    //    {
-    //        return options.Where(a => a.Name == name).FirstOrDefault();
-    //    }
+        public Option GetByName(string name)
+        {
+            return options.Where(a => a.Name == name).FirstOrDefault();
+        }
 
-    //    public IEnumerator<Option> GetEnumerator()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
+        public IEnumerator<Option> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
 
-    //    IEnumerator IEnumerable.GetEnumerator()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
 
-    //interface IOptionRepository<T> where T : class
-    //{
-    //    IList<T> GetAll();
-    //    T GetByName(string name);
-    //}
+    interface IOptionRepository<T> where T : class
+    {
+        IList<T> GetAll();
+        T GetByName(string name);
+    }
+
+    class Options
+    {
+        [Option('u', "url", HelpText = "The URL of the archived web site", Required = true)]
+        public string Url { get; set; }
+
+        [Option('o', "out", HelpText = "Output/destination directory")]
+        public string OutputDir { get; set; }
+
+        [Option('f',"from", HelpText = "From timestamp. Limits the archived result SINCE this timestamp. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results since the earliest timestamp available. ")]
+        public string From { get; set; }
+
+        [Option('t',"to", HelpText = "To timestamp. Limits the archived result  UNTIL this timestamps. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results until the latest timestamp available. ")]
+        public string To { get; set; }
+
+        [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
+        public int Limit { get; set; }
+
+        [Option('a',"all", HelpText = "Retrieves all snapshots for each timestamp. \nIf omitted only retrieves one snapshot per each timestamp.")]
+        public bool All { get; set; }
+
+        [Option('x', "exact", HelpText = "Download only the url provied and not the full site.")]
+        public bool ExactUrl { get; set; }
+
+        [Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
+        public string OnlyFilter { get; set; }
+
+        [Option("exclude", HelpText = "Skip downloading of urls that match this filter.")]
+        public string ExcludeFilter { get; set; }
+
+    }
+
+
 
 
 }
