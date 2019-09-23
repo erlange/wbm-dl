@@ -8,7 +8,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-
+using CommandLine;
 
 namespace com.erlange.wbmdl
 {
@@ -25,6 +25,8 @@ namespace com.erlange.wbmdl
             Console.WriteLine();
             Console.ResetColor();
         }
+
+
 
         public static void Main(string[] args)
         {
@@ -291,6 +293,39 @@ namespace com.erlange.wbmdl
         IList<T> GetAll();
         T GetByName(string name);
     }
+
+    class Options
+    {
+        [Option('u', "url", HelpText = "The URL of the archived web site", Required = true)]
+        public string Url { get; set; }
+
+        [Option('o', "out", HelpText = "Output/destination directory")]
+        public string OutputDir { get; set; }
+
+        [Option('f',"from", HelpText = "From timestamp. Limits the archived result SINCE this timestamp. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results since the earliest timestamp available. ")]
+        public string From { get; set; }
+
+        [Option('t',"to", HelpText = "To timestamp. Limits the archived result  UNTIL this timestamps. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results until the latest timestamp available. ")]
+        public string To { get; set; }
+
+        [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
+        public int Limit { get; set; }
+
+        [Option('a',"all", HelpText = "Retrieves all snapshots for each timestamp. \nIf omitted only retrieves one snapshot per each timestamp.")]
+        public bool All { get; set; }
+
+        [Option('x', "exact", HelpText = "Download only the url provied and not the full site.")]
+        public bool ExactUrl { get; set; }
+
+        [Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
+        public string OnlyFilter { get; set; }
+
+        [Option("exclude", HelpText = "Skip downloading of urls that match this filter.")]
+        public string ExcludeFilter { get; set; }
+
+    }
+
+
 
 
 }
