@@ -31,12 +31,24 @@ namespace com.erlange.wbmdl
         public static void Main(string[] args)
         {
             ShowBanner();
-            BuildUrl(args);
+            //BuildUrl(args);
+
+            var parser = Parser.Default;
+            var result = parser.ParseArguments<Options>(args).MapResult(
+                (Options opts) => RunCommand(opts)
+                ,(parserErrors)=> 1
+                );
+                 
             if (Debugger.IsAttached)
             {
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
             }
+        }
+
+        static int RunCommand(Options opts)
+        {
+            return 0;
         }
 
         static bool IsValidArg(string arg, string option)
