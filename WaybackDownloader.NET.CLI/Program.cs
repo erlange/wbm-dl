@@ -8,7 +8,8 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace com.erlange.wbmdl
 {
@@ -16,6 +17,8 @@ namespace com.erlange.wbmdl
     {
         private static OptionDictionary options = LoadOptions();
         private static string BaseUrl = "web.archive.org/cdx/search/cdx";
+        
+        
 
         static void ShowBanner()
         {
@@ -30,6 +33,7 @@ namespace com.erlange.wbmdl
         {
             ShowBanner();
             BuildUrl(args);
+            
             if (Debugger.IsAttached)
             {
                 Console.WriteLine("Press any key to exit");
@@ -115,8 +119,8 @@ namespace com.erlange.wbmdl
                     Console.ResetColor();
 
 
+                    Task<string> task = new Task<string>(test);
                     Console.WriteLine(GetResponseString(resultUrl));
-
                     return 1;
                 }
             }
@@ -124,21 +128,25 @@ namespace com.erlange.wbmdl
 
         }
 
-
-
+        static string test()
+        {
+            return "";
+        }
         static string GetResponseString(string url)
         {
             string result = string.Empty;
             int count = 0;
             try
             {
+                System.Net.WebClient client = new System.Net.WebClient();
+                client.DownloadStringCompleted += Client_DownloadStringCompleted;
                 System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
                 request.Method = "GET";
                 using (System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
                 {
                     using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-    
+                        
                         while (reader.ReadLine() != null)
                         {
                             count++;
@@ -153,6 +161,12 @@ namespace com.erlange.wbmdl
                 result = ex.Message;
             }
             return result;
+        }
+
+        private static void Client_DownloadStringCompleted(object sender, System.Net.DownloadStringCompletedEventArgs e)
+        {
+            
+            throw new NotImplementedException();
         }
 
         private static OptionDictionary LoadOptions()
