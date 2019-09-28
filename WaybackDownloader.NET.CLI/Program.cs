@@ -31,11 +31,6 @@ namespace com.erlange.wbmdl
         {
             ShowBanner();
 
-            var parser = Parser.Default;
-            var result = parser.ParseArguments<Options>(args).MapResult(
-                (Options opts) => RunCommand(opts)
-                ,(parserErrors)=> 1
-                );
                  
             if (Debugger.IsAttached)
             {
@@ -44,10 +39,46 @@ namespace com.erlange.wbmdl
             }
         }
 
-        static int RunCommand(Options opts)
+        static void ParseArgs(string[] args)
         {
-            return 0;
+            Parser parser = Parser.Default;
+            var result = parser.ParseArguments<Options>(args).MapResult(
+                (Options opts) => BuildUrl(opts)
+                , (parserErrors) => 1.ToString()
+                );
         }
+
+        static string BuildUrlOption(Options opts)
+        {
+            string resultUrl = string.Empty;
+            if (opts.Url.IsValidURL())
+            {
+                UriBuilder builder = new System.UriBuilder(BaseUrl);
+                System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                query["url"] = opts.Url + "/*";
+                query["fl"] = "timestamp,original,statuscode";
+                //query["collapse"] = "digest";
+                query["collapse"] = "urlkey";
+                query["filter"] = "statuscode:200";
+
+                builder.Query = query.ToString();
+                resultUrl = builder.ToString();
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
+                Console.ResetColor();
+            }
+            return resultUrl;
+        }
+
+        static string BuildFromOption(Options opts, string url)
+        {
+            
+            string resultUrl = string.Empty;
+            return resultUrl;
+
+        }
+
 
         static bool IsValidArg(string arg, string option)
         {
@@ -56,12 +87,6 @@ namespace com.erlange.wbmdl
             return isValid;
         }
 
-
-
-        public void ParseArgs(string[] args)
-        {
-
-        }
 
         static int BuildUrl(string[] args)
         {
