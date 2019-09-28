@@ -14,7 +14,8 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        private static string BaseUrl = "web.archive.org/cdx/search/cdx";
+        private static string baseUrl = "web.archive.org/cdx/search/cdx";
+        private static string finalUrl = string.Empty;
 
         static void ShowBanner()
         {
@@ -43,9 +44,18 @@ namespace com.erlange.wbmdl
         {
             Parser parser = Parser.Default;
             var result = parser.ParseArguments<Options>(args).MapResult(
-                (Options opts) => BuildUrl(opts)
+                (Options opts) => BuildOptions(opts)
                 , (parserErrors) => 1.ToString()
                 );
+        }
+
+        static string BuildOptions(Options opts)
+        {
+            if(BuildUrlOption(opts).IsValidURL())
+            {
+                return finalUrl;
+            }
+            return string.Empty;
         }
 
         static string BuildUrlOption(Options opts)
@@ -53,7 +63,7 @@ namespace com.erlange.wbmdl
             string resultUrl = string.Empty;
             if (opts.Url.IsValidURL())
             {
-                UriBuilder builder = new System.UriBuilder(BaseUrl);
+                UriBuilder builder = new System.UriBuilder(baseUrl);
                 System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 query["url"] = opts.Url + "/*";
                 query["fl"] = "timestamp,original,statuscode";
@@ -63,6 +73,7 @@ namespace com.erlange.wbmdl
 
                 builder.Query = query.ToString();
                 resultUrl = builder.ToString();
+                finalUrl = resultUrl;
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
@@ -101,7 +112,7 @@ namespace com.erlange.wbmdl
             {
                 if (args[0].Trim().IsValidURL() && !args[0].Trim().ToLowerInvariant().Equals("-url"))
                 {
-                    UriBuilder builder = new System.UriBuilder(BaseUrl);
+                    UriBuilder builder = new System.UriBuilder(baseUrl);
                     System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                     query["url"] = args[0] + "/*";
                     query["fl"] = "timestamp,original,statuscode";
