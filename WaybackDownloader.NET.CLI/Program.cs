@@ -37,14 +37,9 @@ namespace com.erlange.wbmdl
            
             result.WithParsed<Options>((Options opts) =>
             {
-                Console.WriteLine(BuildOptions(opts));
-            }).WithNotParsed<Options>(errors=> {
-                foreach(var a in errors)
-                {
-                    Console.WriteLine(a.ToString());
-                }
-                
-                
+                string url = BuildOptions(opts);
+                Console.WriteLine(url);
+                Console.WriteLine(GetResponseString(url));
             });
 
 
@@ -73,12 +68,13 @@ namespace com.erlange.wbmdl
 
                 UriBuilder builder = new System.UriBuilder(baseUrl);
                 var query = HttpUtility.ParseQueryString(string.Empty);
-                query["url"] = opts.Url + (opts.ExactUrl ? "/*" : "");
-                query["fl"] = "timestamp,original,statuscode";
-                //query["collapse"] = "digest";
-                query["collapse"] = "urlkey";
 
-                if (opts.All)
+                query["url"] = opts.Url + (opts.ExactUrl ? "" : "/*");
+                query["fl"] = "timestamp,original,statuscode";
+                query["collapse"] = "urlkey";
+                //query["collapse"] = "digest";
+
+                if (!opts.All)
                     query["filter"] = "statuscode:200";
 
                 if (opts.From.IsInteger())
@@ -86,6 +82,9 @@ namespace com.erlange.wbmdl
 
                 if (opts.To.IsInteger())
                     query["to"] = opts.To.Trim();
+
+                if(opts.ListOnly)
+                    query["output"] = "json";
 
                 builder.Query = query.ToString();
                 resultUrl = builder.ToString();
@@ -113,9 +112,6 @@ namespace com.erlange.wbmdl
                             count++;
                         }
                         result = count.ToString() + " item(s) archived.";
-                        
-
-                        
                     }
                 }
             }
@@ -182,11 +178,14 @@ namespace com.erlange.wbmdl
         [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
         public int Limit { get; set; }
 
-        [Option('a',"all", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
+        [Option('A',"all", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
         public bool All { get; set; }
 
-        [Option('x', "exact", HelpText = "Download only the url provied and not the full site.")]
+        [Option('X', "exact", HelpText = "Download only the url provied and not the full site.")]
         public bool ExactUrl { get; set; }
+
+        [Option('L', "listOnly", HelpText = "Only list the urls in a JSON format with the archived timestamps, won't download anything")]
+        public bool ListOnly { get; set; }
 
         //[Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
         //public string OnlyFilter { get; set; }
