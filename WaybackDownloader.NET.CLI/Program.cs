@@ -9,12 +9,12 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using CommandLine;
+using System.Web;
 
 namespace com.erlange.wbmdl
 {
     public class Program
     {
-        private static string baseUrl = "web.archive.org/cdx/search/cdx";
         private static string finalUrl = string.Empty;
 
         static void ShowBanner()
@@ -32,7 +32,22 @@ namespace com.erlange.wbmdl
         {
             ShowBanner();
 
-                 
+            Parser parser = Parser.Default;
+            var result = parser.ParseArguments<Options>(args);
+           
+            result.WithParsed<Options>((Options opts) =>
+            {
+                Console.WriteLine(BuildOptions(opts));
+            }).WithNotParsed<Options>(errors=> {
+                foreach(var a in errors)
+                {
+                    Console.WriteLine(a.ToString());
+                }
+                
+                
+            });
+
+
             if (Debugger.IsAttached)
             {
                 Console.WriteLine("Press any key to exit");
@@ -51,89 +66,32 @@ namespace com.erlange.wbmdl
 
         static string BuildOptions(Options opts)
         {
-            if(BuildUrlOption(opts).IsValidURL())
-            {
-                return finalUrl;
-            }
-            return string.Empty;
-        }
-
-        static string BuildUrlOption(Options opts)
-        {
             string resultUrl = string.Empty;
+            string baseUrl = "web.archive.org/cdx/search/cdx";
             if (opts.Url.IsValidURL())
             {
+
                 UriBuilder builder = new System.UriBuilder(baseUrl);
-                System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                query["url"] = opts.Url + "/*";
+                var query = HttpUtility.ParseQueryString(string.Empty);
+                query["url"] = opts.Url + (opts.ExactUrl ? "/*" : "");
                 query["fl"] = "timestamp,original,statuscode";
                 //query["collapse"] = "digest";
                 query["collapse"] = "urlkey";
-                query["filter"] = "statuscode:200";
+
+                if (opts.All)
+                    query["filter"] = "statuscode:200";
+
+                if (opts.From.IsInteger())
+                    query["from"] = opts.From.Trim();
+
+                if (opts.To.IsInteger())
+                    query["to"] = opts.To.Trim();
 
                 builder.Query = query.ToString();
                 resultUrl = builder.ToString();
-                finalUrl = resultUrl;
-
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
-                Console.ResetColor();
             }
+
             return resultUrl;
-        }
-
-        static string BuildFromOption(Options opts, string url)
-        {
-            
-            string resultUrl = string.Empty;
-            return resultUrl;
-
-        }
-
-
-        static bool IsValidArg(string arg, string option)
-        {
-            bool isValid = false;
-            isValid = isValid && arg.Trim().ToUpperInvariant() == option.Trim().ToUpperInvariant();
-            return isValid;
-        }
-
-
-        static int BuildUrl(string[] args)
-        {
-            string url = string.Empty;
-
-            if (args.Length == 0)
-            {
-                return 0;
-            }
-
-            if (args.Length == 1)
-            {
-                if (args[0].Trim().IsValidURL() && !args[0].Trim().ToLowerInvariant().Equals("-url"))
-                {
-                    UriBuilder builder = new System.UriBuilder(baseUrl);
-                    System.Collections.Specialized.NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                    query["url"] = args[0] + "/*";
-                    query["fl"] = "timestamp,original,statuscode";
-                    //query["collapse"] = "digest";
-                    query["collapse"] = "urlkey";
-                    query["filter"] = "statuscode:200";
-                    builder.Query = query.ToString();
-                    string resultUrl = builder.ToString();
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-
-                    Console.WriteLine(System.Web.HttpUtility.UrlDecode(resultUrl));
-                    Console.ResetColor();
-
-
-                    Console.WriteLine(GetResponseString(resultUrl));
-
-                    return 1;
-                }
-            }
-            return 0;
-
         }
 
 
@@ -196,6 +154,12 @@ namespace com.erlange.wbmdl
             return Rgx.IsMatch(URL);
         }
 
+        public static bool IsInteger(this string value)
+        {
+            int intValue = -1;
+            return int.TryParse(value, out intValue);
+        }
+
 
     }
 
@@ -218,17 +182,17 @@ namespace com.erlange.wbmdl
         [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
         public int Limit { get; set; }
 
-        [Option('a',"all", HelpText = "Retrieves all snapshots for each timestamp. \nIf omitted only retrieves one snapshot per each timestamp.")]
+        [Option('a',"all", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
         public bool All { get; set; }
 
         [Option('x', "exact", HelpText = "Download only the url provied and not the full site.")]
         public bool ExactUrl { get; set; }
 
-        [Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
-        public string OnlyFilter { get; set; }
+        //[Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
+        //public string OnlyFilter { get; set; }
 
-        [Option("exclude", HelpText = "Skip downloading of urls that match this filter.")]
-        public string ExcludeFilter { get; set; }
+        //[Option("exclude", HelpText = "Skip downloading of urls that match this filter.")]
+        //public string ExcludeFilter { get; set; }
 
     }
 
