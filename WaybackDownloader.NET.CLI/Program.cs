@@ -10,6 +10,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using CommandLine;
 using System.Web;
+using System.IO;
+using System.Net;
 
 namespace com.erlange.wbmdl
 {
@@ -71,8 +73,9 @@ namespace com.erlange.wbmdl
 
                 query["url"] = opts.Url + (opts.ExactUrl ? "" : "/*");
                 query["fl"] = "timestamp,original,statuscode";
-                query["collapse"] = "urlkey";
-                //query["collapse"] = "digest";
+                //query["collapse"] = "urlkey";
+                query["collapse"] = "digest";
+                query["pageSize"] = "1";
 
                 if (!opts.All)
                     query["filter"] = "statuscode:200";
@@ -101,16 +104,19 @@ namespace com.erlange.wbmdl
             int count = 0;
             try
             {
-                System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
-                using (System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-                    using ( System.IO.StreamReader reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                    using ( StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        while (reader.ReadLine() != null)
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
                         {
+                            Console.WriteLine(line);
                             count++;
                         }
+
                         result = count.ToString() + " item(s) archived.";
                     }
                 }
@@ -129,16 +135,6 @@ namespace com.erlange.wbmdl
 
     public static class ArgsExtensions
     {
-        public static Boolean IsValidArgs(this string[] args)
-        {
-            Boolean isValid = false;
-            if (args.Length == 0)
-            {
-                return false;
-            }
-            return isValid;
-        }
-
         public static bool IsValidURL(this string URL)
         {
             string Pattern = @"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$";
@@ -156,9 +152,7 @@ namespace com.erlange.wbmdl
             return int.TryParse(value, out intValue);
         }
 
-
     }
-
 
 
     class Options
