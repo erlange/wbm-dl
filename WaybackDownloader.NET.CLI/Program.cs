@@ -18,6 +18,8 @@ namespace com.erlange.wbmdl
     public class Program
     {
         //private static string finalUrl = string.Empty;
+        static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
+        static readonly string webUrl = "http://web.archive.org/web/";
 
         static void ShowBanner()
         {
@@ -64,17 +66,15 @@ namespace com.erlange.wbmdl
         static string BuildOptions(Options opts)
         {
             string resultUrl = string.Empty;
-            string baseUrl = "web.archive.org/cdx/search/cdx";
             if (opts.Url.IsValidURL())
             {
 
-                UriBuilder builder = new System.UriBuilder(baseUrl);
+                UriBuilder builder = new System.UriBuilder(cdcUrl);
                 var query = HttpUtility.ParseQueryString(string.Empty);
 
                 query["url"] = opts.Url + (opts.ExactUrl ? "" : "/*");
-                query["fl"] = "urlkey,timestamp,original,digest";
-                query["collapse"] = "digest";
-                //query["collapse"] = "urlkey";
+                query["fl"] = "urlkey,digest,timestamp,original,mimetype,statuscode,length";
+                //query["collapse"] = "digest";
                 query["pageSize"] = "1";
                 query["gzip"] = "false";
 
@@ -115,12 +115,25 @@ namespace com.erlange.wbmdl
                         List<Archive> archives = new List<Archive>();
                         while ((line = reader.ReadLine()) != null)
                         {
-                            archives.Add(new Archive() { UrlKey = line.Split(' ')[0], Timestamp = Int64.Parse(line.Split(' ')[1]), Original = line.Split(' ')[2], Digest = line.Split(' ')[3] });
+                            archives.Add(new Archive() {
+                                UrlKey = line.Split(' ')[0],
+                                Timestamp = long.Parse(line.Split(' ')[2]),
+                                Original = line.Split(' ')[3],
+                                Digest = line.Split(' ')[1],
+                                MimeType = line.Split(' ')[4],
+                                StatusCode =  line.Split(' ')[5],
+                                Length= int.Parse(line.Split(' ')[6]),
+                                UrlId =webUrl + line.Split(' ')[2] + "id_/" + line.Split(' ')[3]  
+                            });
                             Console.WriteLine(line);
                             count++;
                         }
 
-                        result = count.ToString() + " item(s) archived.";
+                        result = archives.Count + " item(s) archived.";
+                        File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) +"/apa.csv", archives.ToCsv());
+                        
+                        archives.ToString();
+
                     }
                 }
             }
@@ -136,7 +149,7 @@ namespace com.erlange.wbmdl
 
     }
 
-    public static class ArgsExtensions
+     public static class ArgsExtensions
     {
         public static bool IsValidURL(this string URL)
         {
@@ -155,21 +168,45 @@ namespace com.erlange.wbmdl
             return int.TryParse(value, out intValue);
         }
 
+        public static string ToCsv(this List<Archive> value)
+        {
+            StringBuilder csv = new StringBuilder();
+            foreach (Archive a in value)
+            {
+                csv.Append(a.UrlKey);
+                csv.Append(';');
+                csv.Append(a.Digest);
+                csv.Append(';');
+                csv.Append(a.Timestamp);
+                csv.Append(';');
+                csv.Append(a.Original);
+                csv.Append(';');
+                csv.Append(a.MimeType);
+                csv.Append(';');
+                csv.Append(a.StatusCode);
+                csv.Append(';');
+                csv.Append(a.Length);
+                csv.Append(';');
+                csv.Append(a.UrlId);
+                csv.AppendLine();
+            }
+            return csv.ToString();
+        }
+
     }
 
-    class Archive
+    public class Archive
     {
-        //public Archive(string urlkey, int timestamp, string original, string digest)
-        //{
-        //    UrlKey = urlkey;
-        //    Timestamp = timestamp;
-        //    Original = original;
-        //    Digest = digest;
-        //}
+
         public string UrlKey { get; set; }
-        public Int64 Timestamp { get; set; }
+        public long Timestamp { get; set; }
         public string Original { get; set; }
         public string Digest { get; set; }
+        public string UrlId { get; set; }
+        public string MimeType{ get; set; }
+        public string StatusCode { get; set; }
+        public long Length { get; set; }
+
     }
 
 
