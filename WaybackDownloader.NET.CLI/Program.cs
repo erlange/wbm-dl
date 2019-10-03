@@ -17,7 +17,7 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        private static string finalUrl = string.Empty;
+        //private static string finalUrl = string.Empty;
 
         static void ShowBanner()
         {
@@ -72,10 +72,11 @@ namespace com.erlange.wbmdl
                 var query = HttpUtility.ParseQueryString(string.Empty);
 
                 query["url"] = opts.Url + (opts.ExactUrl ? "" : "/*");
-                query["fl"] = "timestamp,original,statuscode";
-                //query["collapse"] = "urlkey";
+                query["fl"] = "urlkey,timestamp,original,digest";
                 query["collapse"] = "digest";
+                //query["collapse"] = "urlkey";
                 query["pageSize"] = "1";
+                query["gzip"] = "false";
 
                 if (!opts.All)
                     query["filter"] = "statuscode:200";
@@ -111,8 +112,10 @@ namespace com.erlange.wbmdl
                     using ( StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
                         string line;
+                        List<Archive> archives = new List<Archive>();
                         while ((line = reader.ReadLine()) != null)
                         {
+                            archives.Add(new Archive() { UrlKey = line.Split(' ')[0], Timestamp = Int64.Parse(line.Split(' ')[1]), Original = line.Split(' ')[2], Digest = line.Split(' ')[3] });
                             Console.WriteLine(line);
                             count++;
                         }
@@ -154,6 +157,21 @@ namespace com.erlange.wbmdl
 
     }
 
+    class Archive
+    {
+        //public Archive(string urlkey, int timestamp, string original, string digest)
+        //{
+        //    UrlKey = urlkey;
+        //    Timestamp = timestamp;
+        //    Original = original;
+        //    Digest = digest;
+        //}
+        public string UrlKey { get; set; }
+        public Int64 Timestamp { get; set; }
+        public string Original { get; set; }
+        public string Digest { get; set; }
+    }
+
 
     class Options
     {
@@ -178,7 +196,7 @@ namespace com.erlange.wbmdl
         [Option('X', "exact", HelpText = "Download only the url provied and not the full site.")]
         public bool ExactUrl { get; set; }
 
-        [Option('L', "listOnly", HelpText = "Only list the urls in a JSON format with the archived timestamps, won't download anything")]
+        [Option('L', "list", HelpText = "Only list the urls in a JSON format with the archived timestamps, won't download anything")]
         public bool ListOnly { get; set; }
 
         //[Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
