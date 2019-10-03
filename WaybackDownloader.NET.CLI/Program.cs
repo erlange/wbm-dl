@@ -32,7 +32,7 @@ namespace com.erlange.wbmdl
 
 
 
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
             ShowBanner();
 
@@ -74,7 +74,7 @@ namespace com.erlange.wbmdl
 
                 query["url"] = opts.Url + (opts.ExactUrl ? "" : "/*");
                 query["fl"] = "urlkey,digest,timestamp,original,mimetype,statuscode,length";
-                //query["collapse"] = "digest";
+                query["collapse"] = "digest";
                 query["pageSize"] = "1";
                 query["gzip"] = "false";
 
@@ -131,7 +131,6 @@ namespace com.erlange.wbmdl
 
                         result = archives.Count + " item(s) archived.";
                         File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) +"/apa.csv", archives.ToCsv());
-                        
                         archives.ToString();
 
                     }
@@ -230,7 +229,7 @@ namespace com.erlange.wbmdl
         [Option('A',"all", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
         public bool All { get; set; }
 
-        [Option('X', "exact", HelpText = "Download only the url provied and not the full site.")]
+        [Option('X', "exact", HelpText = "Download only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
 
         [Option('L', "list", HelpText = "Only list the urls in a JSON format with the archived timestamps, won't download anything")]
