@@ -143,12 +143,27 @@ namespace com.erlange.wbmdl
             return result;
         }
 
+        void DownloadFile(string url)
+        {
+
+        }
+
+        void DownloadFile(string url, string path)
+        {
+            WebClient client = new WebClient();
+            Uri uri = new Uri(url);
+            client.DownloadFile(url, path);
+            
+        }
+
+
+
 
 
 
     }
 
-     public static class ArgsExtensions
+    public static class ArgsExtensions
     {
         public static bool IsValidURL(this string URL)
         {
@@ -166,30 +181,60 @@ namespace com.erlange.wbmdl
             int intValue = -1;
             return int.TryParse(value, out intValue);
         }
+        public static string ToJson(this List<Archive> value)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("{");
+            foreach (Archive a in value)
+            {
+                builder.Append("\"urlkey:\"");
+                builder.Append(a.UrlKey);
+                builder.Append(',');
+                builder.Append(a.Digest);
+                builder.Append(',');
+                builder.Append(a.Timestamp);
+                builder.Append(',');
+                builder.Append(a.Original);
+                builder.Append(',');
+                builder.Append(a.MimeType);
+                builder.Append(',');
+                builder.Append(a.StatusCode);
+                builder.Append(',');
+                builder.Append(a.Length);
+                builder.Append(',');
+                builder.Append(a.UrlId);
+                builder.AppendLine();
+            }
+            builder.AppendLine("}");
+            var writer = JsonReaderWriterFactory.CreateJsonWriter(null);
+            return builder.ToString();
+
+
+        }
 
         public static string ToCsv(this List<Archive> value)
         {
-            StringBuilder csv = new StringBuilder();
+            StringBuilder builder = new StringBuilder();
             foreach (Archive a in value)
             {
-                csv.Append(a.UrlKey);
-                csv.Append(';');
-                csv.Append(a.Digest);
-                csv.Append(';');
-                csv.Append(a.Timestamp);
-                csv.Append(';');
-                csv.Append(a.Original);
-                csv.Append(';');
-                csv.Append(a.MimeType);
-                csv.Append(';');
-                csv.Append(a.StatusCode);
-                csv.Append(';');
-                csv.Append(a.Length);
-                csv.Append(';');
-                csv.Append(a.UrlId);
-                csv.AppendLine();
+                builder.Append(a.UrlKey);
+                builder.Append(',');
+                builder.Append(a.Digest);
+                builder.Append(',');
+                builder.Append(a.Timestamp);
+                builder.Append(',');
+                builder.Append(a.Original);
+                builder.Append(',');
+                builder.Append(a.MimeType);
+                builder.Append(',');
+                builder.Append(a.StatusCode);
+                builder.Append(',');
+                builder.Append(a.Length);
+                builder.Append(',');
+                builder.Append(a.UrlId);
+                builder.AppendLine();
             }
-            return csv.ToString();
+            return builder.ToString();
         }
 
     }
