@@ -130,8 +130,9 @@ namespace com.erlange.wbmdl
                         }
 
                         result = archives.Count + " item(s) archived.";
-                        File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) +"/apa.csv", archives.ToCsv());
-                        archives.ToString();
+                        //File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.csv", archives.ToCsv());
+                        File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.json", archives.ToJson());
+                        //Console.WriteLine(archives.ToJson());
 
                     }
                 }
@@ -143,24 +144,13 @@ namespace com.erlange.wbmdl
             return result;
         }
 
-        void DownloadFile(string url)
-        {
-
-        }
 
         void DownloadFile(string url, string path)
         {
             WebClient client = new WebClient();
             Uri uri = new Uri(url);
             client.DownloadFile(url, path);
-            
         }
-
-
-
-
-
-
     }
 
     public static class ArgsExtensions
@@ -183,33 +173,10 @@ namespace com.erlange.wbmdl
         }
         public static string ToJson(this List<Archive> value)
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("{");
-            foreach (Archive a in value)
-            {
-                builder.Append("\"urlkey:\"");
-                builder.Append(a.UrlKey);
-                builder.Append(',');
-                builder.Append(a.Digest);
-                builder.Append(',');
-                builder.Append(a.Timestamp);
-                builder.Append(',');
-                builder.Append(a.Original);
-                builder.Append(',');
-                builder.Append(a.MimeType);
-                builder.Append(',');
-                builder.Append(a.StatusCode);
-                builder.Append(',');
-                builder.Append(a.Length);
-                builder.Append(',');
-                builder.Append(a.UrlId);
-                builder.AppendLine();
-            }
-            builder.AppendLine("}");
-            var writer = JsonReaderWriterFactory.CreateJsonWriter(null);
-            return builder.ToString();
-
-
+            MemoryStream stream = new MemoryStream();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<Archive>));
+            serializer.WriteObject(stream, value);
+            return Encoding.Default.GetString(stream.ToArray());
         }
 
         public static string ToCsv(this List<Archive> value)
@@ -236,12 +203,10 @@ namespace com.erlange.wbmdl
             }
             return builder.ToString();
         }
-
     }
 
     public class Archive
     {
-
         public string UrlKey { get; set; }
         public long Timestamp { get; set; }
         public string Original { get; set; }
@@ -250,7 +215,6 @@ namespace com.erlange.wbmdl
         public string MimeType{ get; set; }
         public string StatusCode { get; set; }
         public long Length { get; set; }
-
     }
 
 
