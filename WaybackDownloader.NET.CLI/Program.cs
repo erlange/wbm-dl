@@ -130,9 +130,7 @@ namespace com.erlange.wbmdl
                         }
 
                         result = archives.Count + " item(s) archived.";
-                        //File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.csv", archives.ToCsv());
                         File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.json", archives.ToJson());
-                        //Console.WriteLine(archives.ToJson());
 
                     }
                 }
