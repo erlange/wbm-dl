@@ -90,6 +90,12 @@ namespace com.erlange.wbmdl
                 if(opts.ListOnly)
                     query["output"] = "json";
 
+                if (opts.Limit.IsInteger())
+                {
+                    query["limit"] = opts.Limit.Trim();
+                }
+
+
                 builder.Query = query.ToString();
                 resultUrl = builder.ToString();
             }
@@ -231,7 +237,7 @@ namespace com.erlange.wbmdl
         public string To { get; set; }
 
         [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
-        public int Limit { get; set; }
+        public string Limit { get; set; }
 
         [Option('A',"all", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
         public bool All { get; set; }
