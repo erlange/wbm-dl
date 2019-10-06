@@ -149,6 +149,13 @@ namespace com.erlange.wbmdl
         }
 
 
+        void DownloadFiles(List<Archive> archives, string outDir)
+        {
+            foreach(Archive archive in archives)
+            {
+                DownloadFile(archive.UrlId, outDir);
+            }
+        }
         void DownloadFile(string url, string path)
         {
             WebClient client = new WebClient();
