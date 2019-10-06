@@ -124,12 +124,12 @@ namespace com.erlange.wbmdl
                             archives.Add(new Archive() {
                                 UrlKey = line.Split(' ')[0],
                                 Timestamp = long.Parse(line.Split(' ')[2]),
-                                Original = line.Split(' ')[3],
+                                Original = @line.Split(' ')[3],
                                 Digest = line.Split(' ')[1],
                                 MimeType = line.Split(' ')[4],
                                 StatusCode =  line.Split(' ')[5],
                                 Length= int.Parse(line.Split(' ')[6]),
-                                UrlId =webUrl + line.Split(' ')[2] + "id_/" + line.Split(' ')[3]  
+                                UrlId =@webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3]  
                             });
                             Console.WriteLine(line);
                             count++;
@@ -137,6 +137,7 @@ namespace com.erlange.wbmdl
 
                         result = archives.Count + " item(s) archived.";
                         File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.json", archives.ToJson());
+                        File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.csv", archives.ToCsv());
 
                     }
                 }
