@@ -43,7 +43,18 @@ namespace com.erlange.wbmdl
             {
                 string url = BuildOptions(opts);
                 Console.WriteLine(url);
-                Console.WriteLine(GetResponseString(url));
+                //Console.WriteLine(GetResponseString(url));
+                List<Archive> archives = GetResponse(url);
+                if (string.IsNullOrEmpty(opts.OutputDir))
+                {
+                    SaveLog(archives, FileExtension.CSV);
+                    SaveLog(archives, FileExtension.JSON);
+                }
+                else
+                {
+                    SaveLog(archives, FileExtension.CSV , opts.OutputDir);
+                    SaveLog(archives, FileExtension.JSON, opts.OutputDir);
+                }
             });
 
 
@@ -142,8 +153,6 @@ namespace com.erlange.wbmdl
                             count++;
                         }
                         result = archives.Count + " item(s) archived.";
-                        SaveLog(archives, FileExtension.CSV);
-                        SaveLog(archives, FileExtension.JSON);
                     }
                 }
             }
@@ -154,15 +163,77 @@ namespace com.erlange.wbmdl
             return result;
         }
 
+        static List<Archive> GetResponse(string url)
+        {
+            List<Archive> archives = new List<Archive>();
+            int count = 0;
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                    {
+                        string line, urlId, fileName;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            urlId = @webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3];
+                            fileName = urlId.Split('/')[urlId.Split('/').Length - 1].Split('?')[0];
+                            if (fileName.Length == 0)
+                                fileName = "index.html";
+
+                            archives.Add(new Archive()
+                            {
+                                UrlKey = line.Split(' ')[0],
+                                Timestamp = long.Parse(line.Split(' ')[2]),
+                                Original = @line.Split(' ')[3],
+                                Digest = line.Split(' ')[1],
+                                MimeType = line.Split(' ')[4],
+                                StatusCode = line.Split(' ')[5],
+                                Length = int.Parse(line.Split(' ')[6]),
+                                UrlId = urlId,
+                                Filename = fileName
+                            });
+                            Console.WriteLine(line);
+                            count++;
+                        }
+                        Console.WriteLine(archives.Count + " item(s) archived.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return archives;
+        }
+
         static void SaveLog(List<Archive> archives, FileExtension extension)
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/websites/" + hostName + "/" ;
+            Directory.CreateDirectory(path);
+
             if (extension == FileExtension.CSV)
-                File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"/" + hostName + ".csv", archives.ToCsv());
+                File.WriteAllText(path + hostName + ".csv", archives.ToCsv());
             else if (extension == FileExtension.JSON)
-                File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"/" + hostName + ".json", archives.ToJson());
+                File.WriteAllText(path + hostName + ".json", archives.ToJson());
+        }
+
+        static void SaveLog(List<Archive> archives, FileExtension extension, string outputDir)
+        {
+            System.Uri uri = new Uri(archives.FirstOrDefault().Original);
+            string hostName = uri.Host;
+            string path = outputDir + "/websites/" + hostName + "/" ;
+            Directory.CreateDirectory(path);
+
+            if (extension == FileExtension.CSV)
+                File.WriteAllText(path + hostName + ".csv", archives.ToCsv());
+            else if (extension == FileExtension.JSON)
+                File.WriteAllText(path + hostName + ".json", archives.ToJson());
         }
 
         enum FileExtension
@@ -170,14 +241,15 @@ namespace com.erlange.wbmdl
             CSV=1, JSON=2
         }
 
-        void DownloadFiles(List<Archive> archives, string outDir)
+        static void DownloadFiles(List<Archive> archives, string outDir)
         {
+
             foreach(Archive archive in archives)
             {
                 DownloadFile(archive.UrlId, outDir);
             }
         }
-        void DownloadFile(string url, string path)
+        static void DownloadFile(string url, string path)
         {
             WebClient client = new WebClient();
             Uri uri = new Uri(url);
