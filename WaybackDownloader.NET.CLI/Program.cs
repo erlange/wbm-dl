@@ -117,28 +117,33 @@ namespace com.erlange.wbmdl
                 {
                     using ( StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        string line;
+                        string line, urlId, fileName;
                         List<Archive> archives = new List<Archive>();
                         while ((line = reader.ReadLine()) != null)
                         {
-                            archives.Add(new Archive() {
+                            urlId = @webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3];
+                            fileName = urlId.Split('/')[urlId.Split('/').Length - 1].Split('?')[0];
+                            if (fileName.Length == 0)
+                                fileName = "index.html";
+
+                            archives.Add(new Archive()
+                            {
                                 UrlKey = line.Split(' ')[0],
                                 Timestamp = long.Parse(line.Split(' ')[2]),
                                 Original = @line.Split(' ')[3],
                                 Digest = line.Split(' ')[1],
                                 MimeType = line.Split(' ')[4],
-                                StatusCode =  line.Split(' ')[5],
-                                Length= int.Parse(line.Split(' ')[6]),
-                                UrlId =@webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3]  
+                                StatusCode = line.Split(' ')[5],
+                                Length = int.Parse(line.Split(' ')[6]),
+                                UrlId = urlId,
+                                Filename = fileName
                             });
                             Console.WriteLine(line);
                             count++;
                         }
-
                         result = archives.Count + " item(s) archived.";
                         File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.json", archives.ToJson());
                         File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.csv", archives.ToCsv());
-
                     }
                 }
             }
@@ -211,6 +216,8 @@ namespace com.erlange.wbmdl
                 builder.Append(a.Length);
                 builder.Append(',');
                 builder.Append(a.UrlId);
+                builder.Append(',');
+                builder.Append(a.Filename);
                 builder.AppendLine();
             }
             return builder.ToString();
@@ -227,6 +234,7 @@ namespace com.erlange.wbmdl
         public string MimeType{ get; set; }
         public string StatusCode { get; set; }
         public long Length { get; set; }
+        public string Filename { get; set; }
     }
 
 
