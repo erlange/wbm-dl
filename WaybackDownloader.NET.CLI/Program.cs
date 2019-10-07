@@ -18,8 +18,8 @@ namespace com.erlange.wbmdl
     public class Program
     {
         //private static string finalUrl = string.Empty;
-        static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
         static readonly string webUrl = "http://web.archive.org/web/";
+        static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
 
         static void ShowBanner()
         {
@@ -68,7 +68,6 @@ namespace com.erlange.wbmdl
             string resultUrl = string.Empty;
             if (opts.Url.IsValidURL())
             {
-
                 UriBuilder builder = new System.UriBuilder(cdcUrl);
                 var query = HttpUtility.ParseQueryString(string.Empty);
 
@@ -113,6 +112,7 @@ namespace com.erlange.wbmdl
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
+                
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     using ( StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
@@ -142,8 +142,8 @@ namespace com.erlange.wbmdl
                             count++;
                         }
                         result = archives.Count + " item(s) archived.";
-                        File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.json", archives.ToJson());
-                        File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/apa.csv", archives.ToCsv());
+                        SaveLog(archives, FileExtension.CSV);
+                        SaveLog(archives, FileExtension.JSON);
                     }
                 }
             }
@@ -154,6 +154,21 @@ namespace com.erlange.wbmdl
             return result;
         }
 
+        static void SaveLog(List<Archive> archives, FileExtension extension)
+        {
+            System.Uri uri = new Uri(archives.FirstOrDefault().Original);
+            string hostName = uri.Host;
+            
+            if (extension == FileExtension.CSV)
+                File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"/" + hostName + ".csv", archives.ToCsv());
+            else if (extension == FileExtension.JSON)
+                File.WriteAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"/" + hostName + ".json", archives.ToJson());
+        }
+
+        enum FileExtension
+        {
+            CSV=1, JSON=2
+        }
 
         void DownloadFiles(List<Archive> archives, string outDir)
         {
