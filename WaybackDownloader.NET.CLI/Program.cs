@@ -20,6 +20,7 @@ namespace com.erlange.wbmdl
         //private static string finalUrl = string.Empty;
         static readonly string webUrl = "http://web.archive.org/web/";
         static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
+        static readonly string subDir = "/websites/";
 
         static void ShowBanner()
         {
@@ -42,19 +43,22 @@ namespace com.erlange.wbmdl
             result.WithParsed<Options>((Options opts) =>
             {
                 string url = BuildOptions(opts);
-                Console.WriteLine(url);
+                //Console.WriteLine(url);
                 //Console.WriteLine(GetResponseString(url));
+
                 List<Archive> archives = GetResponse(url);
+                System.Uri uri = new Uri(archives.FirstOrDefault().Original);
+                string hostName = uri.Host;
+                string path;
+
                 if (string.IsNullOrEmpty(opts.OutputDir))
-                {
-                    SaveLog(archives, FileExtension.CSV);
-                    SaveLog(archives, FileExtension.JSON);
-                }
+                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" + hostName ;
                 else
-                {
-                    SaveLog(archives, FileExtension.CSV , opts.OutputDir);
-                    SaveLog(archives, FileExtension.JSON, opts.OutputDir);
-                }
+                    path = opts.OutputDir + "/" + subDir + "/" + hostName;
+
+                SaveLog(archives, FileExtension.CSV, path);
+                SaveLog(archives, FileExtension.JSON, path);
+                DownloadFiles(archives, path);
             });
 
 
@@ -86,7 +90,7 @@ namespace com.erlange.wbmdl
                 query["fl"] = "urlkey,digest,timestamp,original,mimetype,statuscode,length";
                 query["collapse"] = "digest";
                 query["pageSize"] = "1";
-                query["gzip"] = "false";
+                //query["gzip"] = "false";
 
                 if (!opts.All)
                     query["filter"] = "statuscode:200";
@@ -149,7 +153,7 @@ namespace com.erlange.wbmdl
                                 UrlId = urlId,
                                 Filename = fileName
                             });
-                            Console.WriteLine(line);
+                            //Console.WriteLine(line);
                             count++;
                         }
                         result = archives.Count + " item(s) archived.";
@@ -196,7 +200,7 @@ namespace com.erlange.wbmdl
                                 UrlId = urlId,
                                 Filename = fileName
                             });
-                            Console.WriteLine(line);
+                            //Console.WriteLine(line);
                             count++;
                         }
                         Console.WriteLine(archives.Count + " item(s) archived.");
@@ -205,7 +209,13 @@ namespace com.erlange.wbmdl
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);
+                
+            }
+            finally
+            {
+                Console.ResetColor();
             }
             return archives;
         }
@@ -214,7 +224,7 @@ namespace com.erlange.wbmdl
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/websites/" + hostName + "/logs/" ;
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + "/logs/" ;
             Directory.CreateDirectory(path);
 
             if (extension == FileExtension.CSV)
@@ -223,17 +233,17 @@ namespace com.erlange.wbmdl
                 File.WriteAllText(path + hostName + ".json", archives.ToJson());
         }
 
-        static void SaveLog(List<Archive> archives, FileExtension extension, string outputDir)
+        static void SaveLog(List<Archive> archives, FileExtension extension, string path)
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            string path = outputDir + "/websites/" + hostName + "/logs/" ;
-            Directory.CreateDirectory(path);
+            string logPath = path + "/logs/" ;
+            Directory.CreateDirectory(logPath);
 
             if (extension == FileExtension.CSV)
-                File.WriteAllText(path + hostName + ".csv", archives.ToCsv());
+                File.WriteAllText(logPath + hostName + ".csv", archives.ToCsv());
             else if (extension == FileExtension.JSON)
-                File.WriteAllText(path + hostName + ".json", archives.ToJson());
+                File.WriteAllText(logPath + hostName + ".json", archives.ToJson());
         }
 
         enum FileExtension
@@ -241,18 +251,43 @@ namespace com.erlange.wbmdl
             CSV=1, JSON=2
         }
 
-        static void DownloadFiles(List<Archive> archives, string outDir)
+        static void DownloadFiles(List<Archive> archives, string path)
         {
-
-            foreach(Archive archive in archives)
+            string itemPath;
+            System.Uri uri;
+            int count = 0;
+            WebClient client = new WebClient();
+            foreach (Archive archive in archives)
             {
-                DownloadFile(archive.UrlId, outDir);
+                count++;
+                uri = new Uri(archive.Original);
+                //itemPath = path + "/" + uri.AbsolutePath + "/" + uri.Query.Replace("?", "") + archive.Filename;
+                itemPath = path + "/" + uri.AbsolutePath.Replace(archive.Filename,"") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
+                DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
             }
         }
-        static void DownloadFile(string url, string path)
+        static void DownloadSingleFile(int counter, WebClient client ,string url, string path, string filename)
         {
-            WebClient client = new WebClient();
-            client.DownloadFile(url, path);
+
+            try
+            {
+                Directory.CreateDirectory(path);
+                string filePath = path + "/" + filename;
+                client.DownloadFile(url, filePath);
+                Console.WriteLine(counter.ToString() + ". "+ url + " -> " + Path.GetFullPath(filePath));
+                
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(path);
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
+
         }
     }
 
