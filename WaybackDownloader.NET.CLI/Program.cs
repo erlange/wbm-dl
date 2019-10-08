@@ -214,7 +214,7 @@ namespace com.erlange.wbmdl
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/websites/" + hostName + "/" ;
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/websites/" + hostName + "/logs/" ;
             Directory.CreateDirectory(path);
 
             if (extension == FileExtension.CSV)
@@ -227,7 +227,7 @@ namespace com.erlange.wbmdl
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            string path = outputDir + "/websites/" + hostName + "/" ;
+            string path = outputDir + "/websites/" + hostName + "/logs/" ;
             Directory.CreateDirectory(path);
 
             if (extension == FileExtension.CSV)
@@ -252,7 +252,6 @@ namespace com.erlange.wbmdl
         static void DownloadFile(string url, string path)
         {
             WebClient client = new WebClient();
-            Uri uri = new Uri(url);
             client.DownloadFile(url, path);
         }
     }
