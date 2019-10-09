@@ -37,11 +37,12 @@ namespace com.erlange.wbmdl
 
         static void Main(string[] args)
         {
+            DateTime start, finish;
+
             ShowBanner();
 
             Parser parser = Parser.Default;
             var result = parser.ParseArguments<Options>(args);
-           
             result.WithParsed<Options>((Options opts) =>
             {
                 string url = BuildOptions(opts);
@@ -60,7 +61,11 @@ namespace com.erlange.wbmdl
 
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
+
+                start = DateTime.Now;
                 DownloadArchives(archives, path, opts.AllTimestamps);
+                finish = DateTime.Now;
+                Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Saved in " + Path.GetFullPath(path) );
                 
             });
 
@@ -269,6 +274,7 @@ namespace com.erlange.wbmdl
                 //DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
                 DownloadSingleArchive(client, archive, itemPath);
             }
+
         }
         static void DownloadSingleFile(int counter, WebClient client ,string url, string path, string filename)
         {
@@ -293,7 +299,6 @@ namespace com.erlange.wbmdl
             }
 
         }
-
         static void DownloadSingleArchive(WebClient client, Archive archive, string path)
         {
             try
@@ -302,7 +307,6 @@ namespace com.erlange.wbmdl
                 Directory.CreateDirectory(path);
                 client.DownloadFile(archive.UrlId, filePath);
                 Console.WriteLine(archive.Original + " -> " + Path.GetFullPath(filePath));
-
             }
             catch (Exception ex)
             {
