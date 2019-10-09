@@ -50,27 +50,52 @@ namespace com.erlange.wbmdl
 
                 List<Archive> archives = GetResponse(url);
                 System.Uri uri = new Uri(archives.FirstOrDefault().Original);
-                string hostName = uri.Host;
+                //string hostName = uri.Host;
+                string hostName = opts.Url;
                 string path;
 
                 if (string.IsNullOrEmpty(opts.OutputDir))
-                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" + hostName ;
-                else
-                    path = opts.OutputDir + "/" + subDir + "/" + hostName;
+                {
+                    //path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" + hostName;
+                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" ;
 
+                }
+                else
+                {
+                    path = opts.OutputDir + "/" + subDir + "/" ;
+
+                }
+
+                var maxTime = (from a in archives
+                        where a.Length != 0 
+                        group a by a.LocalPath
+                        into g
+                        select new
+                        {
+                            LocalPath = g.Key,
+                            maxTimestamp = (from t2 in g select t2.Timestamp).Max()
+                        }).ToList();
+
+                var resultArchive = (from a in archives
+                         join f in maxTime
+                         on
+                         new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
+                         select a
+                        ).ToList();
+                 
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
 
                 start = DateTime.Now;
                 if (opts.Threadcount <= 1)
-                    DownloadArchives(archives, path, opts.AllTimestamps);
+                    DownloadArchives(resultArchive, path, opts.AllTimestamps);
                 else
                 {
                     
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
                         //Console.WriteLine("Thread: " + (i + 1));
-                        List<Archive> a = archives.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
+                        List<Archive> a = resultArchive.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
                         System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
                         System.Threading.Thread thread = new System.Threading.Thread(threadStart);
                         thread.Start();
@@ -153,26 +178,32 @@ namespace com.erlange.wbmdl
                 {
                     using ( StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        string line, urlId, fileName;
+                        string line, urlId, fileName, localPath, original;
+                        Uri uri;
                         List<Archive> archives = new List<Archive>();
                         while ((line = reader.ReadLine()) != null)
                         {
                             urlId = @webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3];
                             fileName = urlId.Split('/')[urlId.Split('/').Length - 1].Split('?')[0];
+                            original = line.Split(' ')[3];
+                            uri = new Uri(original);
+
                             if (fileName.Length == 0)
                                 fileName = "index.html";
 
+                            localPath = uri.AbsolutePath.Replace(fileName, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
                             archives.Add(new Archive()
                             {
                                 UrlKey = line.Split(' ')[0],
                                 Timestamp = long.Parse(line.Split(' ')[2]),
-                                Original = @line.Split(' ')[3],
+                                Original = original,
                                 Digest = line.Split(' ')[1],
                                 MimeType = line.Split(' ')[4],
                                 StatusCode = line.Split(' ')[5],
                                 Length = int.Parse(line.Split(' ')[6]),
                                 UrlId = urlId,
-                                Filename = fileName
+                                Filename = fileName,
+                                LocalPath = localPath
                             });
                             //Console.WriteLine(line);
                             count++;
@@ -204,25 +235,35 @@ namespace com.erlange.wbmdl
                 {
                     using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
-                        string line, urlId, fileName;
+                        string line, urlId, fileName, localPath, original;
+                        Uri uri;
+                        UriBuilder uriBuilder;
                         while ((line = reader.ReadLine()) != null)
                         {
                             urlId = @webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3];
                             fileName = urlId.Split('/')[urlId.Split('/').Length - 1].Split('?')[0];
+                            original = @line.Split(' ')[3];
+                            uri = new Uri(original);
+
                             if (fileName.Length == 0)
                                 fileName = "index.html";
 
+                            localPath = uri.Host + uri.AbsolutePath.Replace(fileName, "");
+                            localPath += HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
+                            localPath += "/" + fileName;
+                            localPath= localPath.Replace("//","/");
                             archives.Add(new Archive()
                             {
                                 UrlKey = line.Split(' ')[0],
                                 Timestamp = long.Parse(line.Split(' ')[2]),
-                                Original = @line.Split(' ')[3],
+                                Original = original,
                                 Digest = line.Split(' ')[1],
                                 MimeType = line.Split(' ')[4],
                                 StatusCode = line.Split(' ')[5],
                                 Length = int.Parse(line.Split(' ')[6]),
                                 UrlId = urlId,
-                                Filename = fileName
+                                Filename = fileName,
+                                LocalPath = localPath
                             });
                             //Console.WriteLine(line);
                             count++;
@@ -287,54 +328,28 @@ namespace com.erlange.wbmdl
                 {
                     count++;
                     uri = new Uri(archive.Original);
-                    //itemPath = path + "/" + uri.AbsolutePath + "/" + uri.Query.Replace("?", "") + archive.Filename;
-                    itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
-                    //DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
+                    //itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
+                    itemPath = path + "/" + archive.LocalPath;
                     DownloadSingleArchive(client, archive, itemPath);
                 }
             }
         }
-        static void DownloadSingleFile(int counter, WebClient client ,string url, string path, string filename)
+        static void DownloadSingleArchive(WebClient client, Archive archive, string path)
         {
-
+            //string filePath = path + "/" + archive.Filename;
+            string dirPath = path.Replace(archive.Filename, "");
+            string filePath = path;
             try
             {
-                Directory.CreateDirectory(path);
-                string filePath = path + "/" + filename;
-                //client.DownloadFileAsync(new Uri(url), filePath);
-                client.DownloadFile(url, filePath);
-                Console.WriteLine(counter.ToString() + ". "+ url + " -> " + Path.GetFullPath(filePath));
-                
+                Directory.CreateDirectory(dirPath);
+                client.DownloadFile(archive.UrlId, filePath);
+                Console.WriteLine(archive.Timestamp + " " + archive.Original + " -> " + Path.GetFullPath(filePath));
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);
-                Console.WriteLine(path);
-            }
-            finally
-            {
-                Console.ResetColor();
-            }
-
-        }
-        static void DownloadSingleArchive(WebClient client, Archive archive, string path)
-        {
-            try
-            {
-                string filePath= path + "/" + archive.Filename;
-                Directory.CreateDirectory(path);
-                lock (new object())
-                {
-                    client.DownloadFile(archive.UrlId, filePath);
-                }
-                Console.WriteLine(archive.Original + " -> " + Path.GetFullPath(filePath));
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.ToString());
-                Console.WriteLine(path);
+                Console.WriteLine(filePath);
             }
 
             finally
@@ -393,6 +408,8 @@ namespace com.erlange.wbmdl
                 builder.Append(a.UrlId);
                 builder.Append(',');
                 builder.Append(a.Filename);
+                builder.Append(',');
+                builder.Append(a.LocalPath);
                 builder.AppendLine();
             }
             return builder.ToString();
@@ -410,6 +427,7 @@ namespace com.erlange.wbmdl
         public string StatusCode { get; set; }
         public long Length { get; set; }
         public string Filename { get; set; }
+        public string LocalPath { get; set; }
     }
 
 
