@@ -20,7 +20,9 @@ namespace com.erlange.wbmdl
         //private static string finalUrl = string.Empty;
         static readonly string webUrl = "http://web.archive.org/web/";
         static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
-        static readonly string subDir = "/websites/";
+        //static readonly string subDir = "/websites/";
+        static readonly string subDir = "/";
+        static readonly string logSubDir = "/logs/";
 
         static void ShowBanner()
         {
@@ -58,7 +60,7 @@ namespace com.erlange.wbmdl
 
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
-                DownloadFiles(archives, path);
+                DownloadArchives(archives, path);
             });
 
 
@@ -224,20 +226,20 @@ namespace com.erlange.wbmdl
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + "/logs/" ;
-            Directory.CreateDirectory(path);
+            string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir ;
+            Directory.CreateDirectory(logPath);
 
             if (extension == FileExtension.CSV)
-                File.WriteAllText(path + hostName + ".csv", archives.ToCsv());
+                File.WriteAllText(logPath + hostName + ".csv", archives.ToCsv());
             else if (extension == FileExtension.JSON)
-                File.WriteAllText(path + hostName + ".json", archives.ToJson());
+                File.WriteAllText(logPath + hostName + ".json", archives.ToJson());
         }
 
         static void SaveLog(List<Archive> archives, FileExtension extension, string path)
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
-            string logPath = path + "/logs/" ;
+            string logPath = path + logSubDir ;
             Directory.CreateDirectory(logPath);
 
             if (extension == FileExtension.CSV)
@@ -251,7 +253,7 @@ namespace com.erlange.wbmdl
             CSV=1, JSON=2
         }
 
-        static void DownloadFiles(List<Archive> archives, string path)
+        static void DownloadArchives(List<Archive> archives, string path)
         {
             string itemPath;
             System.Uri uri;
@@ -262,8 +264,9 @@ namespace com.erlange.wbmdl
                 count++;
                 uri = new Uri(archive.Original);
                 //itemPath = path + "/" + uri.AbsolutePath + "/" + uri.Query.Replace("?", "") + archive.Filename;
-                itemPath = path + "/" + uri.AbsolutePath.Replace(archive.Filename,"") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
-                DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
+                itemPath = path + "/" + archive.Timestamp + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
+                //DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
+                DownloadSingleArchive(client, archive, itemPath);
             }
         }
         static void DownloadSingleFile(int counter, WebClient client ,string url, string path, string filename)
@@ -289,6 +292,30 @@ namespace com.erlange.wbmdl
             }
 
         }
+
+        static void DownloadSingleArchive(WebClient client, Archive archive, string path)
+        {
+            try
+            {
+                string filePath= path + "/" + archive.Filename;
+                Directory.CreateDirectory(path);
+                client.DownloadFile(archive.UrlId, filePath);
+                Console.WriteLine(archive.Original + " -> " + Path.GetFullPath(filePath));
+
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(path);
+            }
+
+            finally
+            {
+                Console.ResetColor();
+            }
+        }
+
     }
 
     public static class ArgsExtensions
