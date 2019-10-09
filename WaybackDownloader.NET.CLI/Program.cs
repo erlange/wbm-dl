@@ -12,6 +12,7 @@ using CommandLine;
 using System.Web;
 using System.IO;
 using System.Net;
+using System.Threading;
 
 namespace com.erlange.wbmdl
 {
@@ -66,45 +67,59 @@ namespace com.erlange.wbmdl
 
                 }
 
-                var maxTime = (from a in archives
-                        where a.Length != 0 
-                        group a by a.LocalPath
+                var latest = from a in archives
+                             where a.Length != 0
+                             group a by a.LocalPath
                         into g
-                        select new
-                        {
-                            LocalPath = g.Key,
-                            maxTimestamp = (from t2 in g select t2.Timestamp).Max()
-                        }).ToList();
+                             select new
+                             {
+                                 LocalPath = g.Key,
+                                 maxTimestamp = (from t2 in g select t2.Timestamp).Max()
+                             }
+                        ;
 
-                var resultArchive = (from a in archives
-                         join f in maxTime
-                         on
-                         new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
-                         select a
-                        ).ToList();
+                var latestArchive = from a in archives
+                                    join f in latest
+                                    on
+                                    new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
+                                    select a
+                        ;
                  
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
 
-                start = DateTime.Now;
                 if (opts.Threadcount <= 1)
-                    DownloadArchives(resultArchive, path, opts.AllTimestamps);
+                {
+                    start = DateTime.Now;
+                    DownloadArchives(latestArchive.ToList<Archive>(), path, opts.AllTimestamps);
+                    finish = DateTime.Now;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
+                    Console.ResetColor();
+                }
                 else
                 {
-                    
+                    start = DateTime.Now;
+                    Thread[] threads = new Thread[opts.Threadcount];
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
                         //Console.WriteLine("Thread: " + (i + 1));
-                        List<Archive> a = resultArchive.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
-                        System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
-                        System.Threading.Thread thread = new System.Threading.Thread(threadStart);
-                        thread.Start();
-                        
+                        List<Archive> a = latestArchive.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
+                        //System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
+                        threads[i] = new System.Threading.Thread(() => DownloadArchives(a, path, opts.AllTimestamps));
+                        threads[i].Name = "T" + (i + 1);
+                        threads[i].Start();
                     }
+                    for (int i = 0; i < opts.Threadcount; i++)
+                    {
+                        threads[i].Join();
+                    }
+                    finish = DateTime.Now;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Operation/thread completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
+                    Console.ResetColor();
 
                 }
-                finish = DateTime.Now;
-                Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
             });
 
 
@@ -141,10 +156,10 @@ namespace com.erlange.wbmdl
                 if (!opts.AllStatus)
                     query["filter"] = "statuscode:200";
 
-                if (opts.From.IsInteger())
+                if (opts.From.IsLong())
                     query["from"] = opts.From.Trim();
 
-                if (opts.To.IsInteger())
+                if (opts.To.IsLong())
                     query["to"] = opts.To.Trim();
 
                 if(opts.ListOnly)
@@ -230,14 +245,13 @@ namespace com.erlange.wbmdl
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
-
+                
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
                         string line, urlId, fileName, localPath, original;
                         Uri uri;
-                        UriBuilder uriBuilder;
                         while ((line = reader.ReadLine()) != null)
                         {
                             urlId = @webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3];
@@ -329,7 +343,8 @@ namespace com.erlange.wbmdl
                     count++;
                     uri = new Uri(archive.Original);
                     //itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
-                    itemPath = path + "/" + archive.LocalPath;
+                    //itemPath = path + "/" + archive.LocalPath;
+                    itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + archive.LocalPath;
                     DownloadSingleArchive(client, archive, itemPath);
                 }
             }
@@ -343,12 +358,15 @@ namespace com.erlange.wbmdl
             {
                 Directory.CreateDirectory(dirPath);
                 client.DownloadFile(archive.UrlId, filePath);
-                Console.WriteLine(archive.Timestamp + " " + archive.Original + " -> " + Path.GetFullPath(filePath));
+                //Console.WriteLine(archive.Timestamp + " " + archive.Original + " -> " + Path.GetFullPath(filePath));
+                Console.WriteLine("dirPath "+ dirPath);
+                Console.WriteLine("filePath " + filePath);
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
+                //Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.ToString());
                 Console.WriteLine(filePath);
             }
 
@@ -371,6 +389,12 @@ namespace com.erlange.wbmdl
 
             Regex Rgx = new Regex(Pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
             return Rgx.IsMatch(URL);
+        }
+
+        public static bool IsLong(this string value)
+        {
+            long longValue = -1;
+            return long.TryParse(value, out longValue);
         }
 
         public static bool IsInteger(this string value)
