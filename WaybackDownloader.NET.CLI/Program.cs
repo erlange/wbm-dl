@@ -46,8 +46,7 @@ namespace com.erlange.wbmdl
             result.WithParsed<Options>((Options opts) =>
             {
                 string url = BuildOptions(opts);
-                //Console.WriteLine(url);
-                //Console.WriteLine(GetResponseString(url));
+                Console.WriteLine("Thread Counts:" + opts.Threadcount);
 
                 List<Archive> archives = GetResponse(url);
                 System.Uri uri = new Uri(archives.FirstOrDefault().Original);
@@ -63,10 +62,24 @@ namespace com.erlange.wbmdl
                 SaveLog(archives, FileExtension.JSON, path);
 
                 start = DateTime.Now;
-                DownloadArchives(archives, path, opts.AllTimestamps);
+                if (opts.Threadcount <= 1)
+                    DownloadArchives(archives, path, opts.AllTimestamps);
+                else
+                {
+                    
+                    for (int i = 0; i < opts.Threadcount; i++)
+                    {
+                        //Console.WriteLine("Thread: " + (i + 1));
+                        List<Archive> a = archives.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
+                        System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
+                        System.Threading.Thread thread = new System.Threading.Thread(threadStart);
+                        thread.Start();
+                        
+                    }
+
+                }
                 finish = DateTime.Now;
-                Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Saved in " + Path.GetFullPath(path) );
-                
+                Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
             });
 
 
@@ -179,6 +192,9 @@ namespace com.erlange.wbmdl
         {
             List<Archive> archives = new List<Archive>();
             int count = 0;
+            int y = Console.CursorTop;
+            int x = Console.CursorLeft;
+            Console.WriteLine("Getting archived list...");
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -211,7 +227,8 @@ namespace com.erlange.wbmdl
                             //Console.WriteLine(line);
                             count++;
                         }
-                        Console.WriteLine(archives.Count + " item(s) archived.");
+                        Console.SetCursorPosition(x, y);
+                        Console.WriteLine("Found " + archives.Count + " item(s).       ");
                     }
                 }
             }
@@ -264,17 +281,18 @@ namespace com.erlange.wbmdl
             string itemPath;
             System.Uri uri;
             int count = 0;
-            WebClient client = new WebClient();
-            foreach (Archive archive in archives)
+            using (WebClient client = new WebClient())
             {
-                count++;
-                uri = new Uri(archive.Original);
-                //itemPath = path + "/" + uri.AbsolutePath + "/" + uri.Query.Replace("?", "") + archive.Filename;
-                itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
-                //DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
-                DownloadSingleArchive(client, archive, itemPath);
+                foreach (Archive archive in archives)
+                {
+                    count++;
+                    uri = new Uri(archive.Original);
+                    //itemPath = path + "/" + uri.AbsolutePath + "/" + uri.Query.Replace("?", "") + archive.Filename;
+                    itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
+                    //DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
+                    DownloadSingleArchive(client, archive, itemPath);
+                }
             }
-
         }
         static void DownloadSingleFile(int counter, WebClient client ,string url, string path, string filename)
         {
@@ -283,6 +301,7 @@ namespace com.erlange.wbmdl
             {
                 Directory.CreateDirectory(path);
                 string filePath = path + "/" + filename;
+                //client.DownloadFileAsync(new Uri(url), filePath);
                 client.DownloadFile(url, filePath);
                 Console.WriteLine(counter.ToString() + ". "+ url + " -> " + Path.GetFullPath(filePath));
                 
@@ -305,13 +324,16 @@ namespace com.erlange.wbmdl
             {
                 string filePath= path + "/" + archive.Filename;
                 Directory.CreateDirectory(path);
-                client.DownloadFile(archive.UrlId, filePath);
+                lock (new object())
+                {
+                    client.DownloadFile(archive.UrlId, filePath);
+                }
                 Console.WriteLine(archive.Original + " -> " + Path.GetFullPath(filePath));
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.ToString());
                 Console.WriteLine(path);
             }
 
@@ -410,6 +432,9 @@ namespace com.erlange.wbmdl
 
         [Option('a',  HelpText = "All timestamps. Retrieve snapshots for all timestamps.")]
         public bool AllTimestamps { get; set; }
+
+        [Option(shortName: 'c', longName: "count", Default = 1, HelpText = "Thread counts. Maximum concurrent processes.")]
+        public int Threadcount { get; set; }
 
         [Option('A',"All", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
         public bool AllStatus { get; set; }
