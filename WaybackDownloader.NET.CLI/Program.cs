@@ -60,7 +60,8 @@ namespace com.erlange.wbmdl
 
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
-                DownloadArchives(archives, path);
+                DownloadArchives(archives, path, opts.AllTimestamps);
+                
             });
 
 
@@ -94,7 +95,7 @@ namespace com.erlange.wbmdl
                 query["pageSize"] = "1";
                 //query["gzip"] = "false";
 
-                if (!opts.All)
+                if (!opts.AllStatus)
                     query["filter"] = "statuscode:200";
 
                 if (opts.From.IsInteger())
@@ -253,7 +254,7 @@ namespace com.erlange.wbmdl
             CSV=1, JSON=2
         }
 
-        static void DownloadArchives(List<Archive> archives, string path)
+        static void DownloadArchives(List<Archive> archives, string path, bool allTimestamps)
         {
             string itemPath;
             System.Uri uri;
@@ -264,7 +265,7 @@ namespace com.erlange.wbmdl
                 count++;
                 uri = new Uri(archive.Original);
                 //itemPath = path + "/" + uri.AbsolutePath + "/" + uri.Query.Replace("?", "") + archive.Filename;
-                itemPath = path + "/" + archive.Timestamp + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
+                itemPath = path + "/" + (allTimestamps ? archive.Timestamp.ToString() : "") + "/" + uri.AbsolutePath.Replace(archive.Filename, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
                 //DownloadSingleFile(count, client,archive.UrlId, itemPath, archive.Filename);
                 DownloadSingleArchive(client, archive, itemPath);
             }
@@ -403,8 +404,11 @@ namespace com.erlange.wbmdl
         [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
         public string Limit { get; set; }
 
-        [Option('A',"all", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
-        public bool All { get; set; }
+        [Option('a',  HelpText = "All timestamps. Retrieve snapshots for all timestamps.")]
+        public bool AllTimestamps { get; set; }
+
+        [Option('A',"All", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
+        public bool AllStatus { get; set; }
 
         [Option('X', "exact", HelpText = "Download only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
