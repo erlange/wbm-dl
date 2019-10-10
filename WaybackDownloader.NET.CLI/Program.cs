@@ -53,7 +53,6 @@ namespace com.erlange.wbmdl
             result.WithParsed<Options>((Options opts) =>
             {
                 string url = BuildOptions(opts);
-                Console.WriteLine("Thread Counts:" + opts.Threadcount);
                 List<Archive> archives = GetResponse(url);
 
                 if (archives.Count == 0)
@@ -111,7 +110,6 @@ namespace com.erlange.wbmdl
                     Thread[] threads = new Thread[opts.Threadcount];
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
-                        //Console.WriteLine("Thread: " + (i + 1));
                         List<Archive> a = latestArchive.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
                         System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
                         //threads[i] = new System.Threading.Thread(() => DownloadArchives(a, path, opts.AllTimestamps));
@@ -191,62 +189,6 @@ namespace com.erlange.wbmdl
             return resultUrl;
         }
 
-
-
-        static string GetResponseString(string url)
-        {
-            string result = string.Empty;
-            int count = 0;
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "GET";
-                
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                {
-                    using ( StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                    {
-                        string line, urlId, fileName, localPath, original;
-                        Uri uri;
-                        List<Archive> archives = new List<Archive>();
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            urlId = @webUrl + line.Split(' ')[2] + "id_/" + @line.Split(' ')[3];
-                            fileName = urlId.Split('/')[urlId.Split('/').Length - 1].Split('?')[0];
-                            original = line.Split(' ')[3];
-                            uri = new Uri(original);
-
-                            if (fileName.Length == 0)
-                                fileName = "index.html";
-
-                            localPath = uri.AbsolutePath.Replace(fileName, "") + "/" + HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
-                            archives.Add(new Archive()
-                            {
-                                UrlKey = line.Split(' ')[0],
-                                Timestamp = long.Parse(line.Split(' ')[2]),
-                                Original = original,
-                                Digest = line.Split(' ')[1],
-                                MimeType = line.Split(' ')[4],
-                                StatusCode = line.Split(' ')[5],
-                                Length = int.Parse(line.Split(' ')[6]),
-                                UrlId = urlId,
-                                Filename = fileName,
-                                LocalPath = localPath
-                            });
-                            //Console.WriteLine(line);
-                            count++;
-                        }
-                        result = archives.Count + " item(s) archived.";
-                    }
-                }
-            }
-            catch (Exception ex )
-            {
-                result = ex.Message;
-            }
-            return result;
-        }
-
         static List<Archive> GetResponse(string url)
         {
             List<Archive> archives = new List<Archive>();
@@ -258,7 +200,6 @@ namespace com.erlange.wbmdl
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
-                
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
@@ -361,12 +302,9 @@ namespace com.erlange.wbmdl
             {
                 foreach (Archive archive in archives)
                 {
-                    //Interlocked.Increment(ref archiveCount);
-                    //archiveCount++;
                     uri = new Uri(archive.Original);
                     itemPath = path + "/" + (allTimestamps ? archive.LocalPathTimestamp : archive.LocalPath);
                     DownloadSingleArchive(client, archive, itemPath);
-
                 }
             }
         }
@@ -377,12 +315,12 @@ namespace com.erlange.wbmdl
 
             try
             {
-
                 Directory.CreateDirectory(dirPath);
                 client.DownloadFile(archive.UrlId, filePath);
 
                 lock (locker)
                     archiveCount++;
+
                 Console.WriteLine(archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
             }
             catch (Exception ex)
@@ -390,7 +328,6 @@ namespace com.erlange.wbmdl
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Error: " + ex.Message);
             }
-
             finally
             {
                 Console.ResetColor();
