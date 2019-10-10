@@ -325,12 +325,13 @@ namespace com.erlange.wbmdl
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: " + ex.Message);
-            }
-            finally
-            {
-                Console.ResetColor();
+                lock (locker)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
+                    Console.WriteLine("Error message: " + ex.Message);
+                    Console.ResetColor();
+                }
             }
         }
 
