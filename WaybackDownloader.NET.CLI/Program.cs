@@ -26,7 +26,8 @@ namespace com.erlange.wbmdl
         static readonly string logSubDir = "/logs/";
         static readonly object locker = new object();
         static Mutex mutex = new Mutex(false, "locker");
-        static int archiveCount=1;
+        static int archiveCount = 1;
+        static int threadCount = 0;
 
         //delegate void PrintCallback(object what);
 
@@ -83,13 +84,14 @@ namespace com.erlange.wbmdl
                                  maxTimestamp = (from t2 in g select t2.Timestamp).Max()
                              }
                         ;
-
                 var latestArchives = (from a in archives
                                      join f in latest
                                      on
                                      new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
                                      select a).ToList<Archive>();
                         ;
+
+                var archivesToDownload = opts.AllTimestamps ? archives : latestArchives;
                  
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
@@ -97,7 +99,7 @@ namespace com.erlange.wbmdl
                 if (opts.Threadcount <= 1)
                 {
                     start = DateTime.Now;
-                    DownloadArchives(latestArchives.ToList<Archive>(), path, opts.AllTimestamps);
+                    DownloadArchives(archivesToDownload.ToList<Archive>(), path, opts.AllTimestamps);
                     finish = DateTime.Now;
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
@@ -106,14 +108,16 @@ namespace com.erlange.wbmdl
                 else
                 {
                     start = DateTime.Now;
-                    Thread[] threads = new Thread[opts.Threadcount];
+                    Thread[] threads = new Thread[opts.Threadcount+6];
+
+                    int pageSize = (archivesToDownload.Count / opts.Threadcount) + 1;
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
-                        List<Archive> a = latestArchives.Skip(i * latestArchives.Count / opts.Threadcount).Take(latestArchives.Count / opts.Threadcount).ToList();
-                        System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
+                        List<Archive> splitArchives = archivesToDownload.Skip(i * pageSize).Take(pageSize).ToList();
+                        System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(splitArchives, path, opts.AllTimestamps));
                         //threads[i] = new System.Threading.Thread(() => DownloadArchives(a, path, opts.AllTimestamps));
                         threads[i] = new System.Threading.Thread(threadStart);
-                        threads[i].Name = "T" + (i + 1);
+                        //threads[i].Name = "T" + (i + 1);
                     }
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
@@ -315,12 +319,10 @@ namespace com.erlange.wbmdl
             try
             {
                 Directory.CreateDirectory(dirPath);
+                client.DownloadFile(archive.UrlId, filePath);
 
                 lock (locker)
-                {
-                    client.DownloadFile(archive.UrlId, filePath);
                     archiveCount++;
-                }
 
                 Console.WriteLine(Thread.CurrentThread.Name + " " + archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
             }
