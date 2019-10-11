@@ -71,7 +71,6 @@ namespace com.erlange.wbmdl
                 else
                 {
                     path = opts.OutputDir + "/" + subDir + "/" ;
-
                 }
 
                 var latest = from a in archives
@@ -98,7 +97,7 @@ namespace com.erlange.wbmdl
                 if (opts.Threadcount <= 1)
                 {
                     start = DateTime.Now;
-                    DownloadArchives(latestArchive.ToList<Archive>(), path, opts.AllTimestamps);
+                    DownloadArchives(archives.ToList<Archive>(), path, opts.AllTimestamps);
                     finish = DateTime.Now;
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
@@ -110,17 +109,14 @@ namespace com.erlange.wbmdl
                     Thread[] threads = new Thread[opts.Threadcount];
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
-                        List<Archive> a = latestArchive.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
+                        List<Archive> a = archives.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
                         System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
                         //threads[i] = new System.Threading.Thread(() => DownloadArchives(a, path, opts.AllTimestamps));
                         threads[i] = new System.Threading.Thread(threadStart);
                         threads[i].Name = "T" + (i + 1);
-                    }
-
-                    for (int i = 0; i < opts.Threadcount; i++)
-                    {
                         threads[i].Start();
                     }
+
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
                         threads[i].Join();
@@ -162,7 +158,7 @@ namespace com.erlange.wbmdl
                 query["fl"] = "urlkey,digest,timestamp,original,mimetype,statuscode,length";
                 query["collapse"] = "digest";
                 query["pageSize"] = "1";
-                //query["gzip"] = "false";
+                query["gzip"] = "false";
 
                 if (!opts.AllStatus)
                     query["filter"] = "statuscode:200";
@@ -316,10 +312,12 @@ namespace com.erlange.wbmdl
             try
             {
                 Directory.CreateDirectory(dirPath);
-                client.DownloadFile(archive.UrlId, filePath);
 
                 lock (locker)
+                {
+                    client.DownloadFile(archive.UrlId, filePath);
                     archiveCount++;
+                }
 
                 Console.WriteLine(archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
             }
