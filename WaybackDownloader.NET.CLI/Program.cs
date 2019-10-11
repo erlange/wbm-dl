@@ -84,11 +84,11 @@ namespace com.erlange.wbmdl
                              }
                         ;
 
-                var latestArchive = from a in archives
-                                    join f in latest
-                                    on
-                                    new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
-                                    select a
+                var latestArchives = (from a in archives
+                                     join f in latest
+                                     on
+                                     new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
+                                     select a).ToList<Archive>();
                         ;
                  
                 SaveLog(archives, FileExtension.CSV, path);
@@ -97,7 +97,7 @@ namespace com.erlange.wbmdl
                 if (opts.Threadcount <= 1)
                 {
                     start = DateTime.Now;
-                    DownloadArchives(archives.ToList<Archive>(), path, opts.AllTimestamps);
+                    DownloadArchives(latestArchives.ToList<Archive>(), path, opts.AllTimestamps);
                     finish = DateTime.Now;
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
@@ -109,11 +109,14 @@ namespace com.erlange.wbmdl
                     Thread[] threads = new Thread[opts.Threadcount];
                     for (int i = 0; i < opts.Threadcount; i++)
                     {
-                        List<Archive> a = archives.Skip(i * archives.Count / opts.Threadcount).Take(archives.Count / opts.Threadcount).ToList();
+                        List<Archive> a = latestArchives.Skip(i * latestArchives.Count / opts.Threadcount).Take(latestArchives.Count / opts.Threadcount).ToList();
                         System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(a, path, opts.AllTimestamps));
                         //threads[i] = new System.Threading.Thread(() => DownloadArchives(a, path, opts.AllTimestamps));
                         threads[i] = new System.Threading.Thread(threadStart);
                         threads[i].Name = "T" + (i + 1);
+                    }
+                    for (int i = 0; i < opts.Threadcount; i++)
+                    {
                         threads[i].Start();
                     }
 
@@ -319,7 +322,7 @@ namespace com.erlange.wbmdl
                     archiveCount++;
                 }
 
-                Console.WriteLine(archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
+                Console.WriteLine(Thread.CurrentThread.Name + " " + archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
             }
             catch (Exception ex)
             {
