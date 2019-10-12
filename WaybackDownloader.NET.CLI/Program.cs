@@ -255,8 +255,6 @@ namespace com.erlange.wbmdl
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.ToString());
-                
             }
             finally
             {
@@ -271,12 +269,6 @@ namespace com.erlange.wbmdl
             string hostName = uri.Host;
             string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir ;
             Directory.CreateDirectory(logPath);
-
-            //if (extension == FileExtension.CSV)
-            //    File.WriteAllText(logPath + hostName + ".csv", archives.ToCsv());
-            //else if (extension == FileExtension.JSON)
-            //    File.WriteAllText(logPath + hostName + ".json", archives.ToJson());
-
             Console.WriteLine(archives.ToJson());
         }
 
