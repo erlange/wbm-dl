@@ -168,13 +168,11 @@ namespace com.erlange.wbmdl
                 if (opts.To.IsLong())
                     query["to"] = opts.To.Trim();
 
-                if(opts.ListOnly)
-                    query["output"] = "json";
+                //if(opts.ListOnly)
+                //    query["output"] = "json";
 
                 if (opts.Limit.IsInteger())
-                {
                     query["limit"] = opts.Limit.Trim();
-                }
 
 
                 builder.Query = query.ToString();
@@ -242,7 +240,7 @@ namespace com.erlange.wbmdl
                         }
                         Console.SetCursorPosition(x, y);
                         Console.WriteLine("Found " + archives.Count + " total item(s).       ");
-                        Console.Write(" with " + GetLatestOnly(archives).Count + " unique item(s).       ");
+                        Console.WriteLine(" with " + GetLatestOnly(archives).Count + " unique/latest item(s).       ");
                         Console.WriteLine();
                     }
                 }
@@ -251,6 +249,7 @@ namespace com.erlange.wbmdl
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.ToString());
                 
             }
             finally
