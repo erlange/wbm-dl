@@ -71,8 +71,14 @@ namespace com.erlange.wbmdl
                 if (!opts.ListOnly)
                     StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps);
 
-                SaveLog(archives, FileExtension.CSV, path);
-                SaveLog(archives, FileExtension.JSON, path);
+                if (!opts.ListOnly)
+                    SaveLog(archives, FileExtension.JSON, path);
+                else
+                {
+                    SaveLog(archives, FileExtension.JSON);
+                    SaveLog(archives, FileExtension.JSON, path);
+                }
+
             });
 
 
@@ -266,10 +272,12 @@ namespace com.erlange.wbmdl
             string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir ;
             Directory.CreateDirectory(logPath);
 
-            if (extension == FileExtension.CSV)
-                File.WriteAllText(logPath + hostName + ".csv", archives.ToCsv());
-            else if (extension == FileExtension.JSON)
-                File.WriteAllText(logPath + hostName + ".json", archives.ToJson());
+            //if (extension == FileExtension.CSV)
+            //    File.WriteAllText(logPath + hostName + ".csv", archives.ToCsv());
+            //else if (extension == FileExtension.JSON)
+            //    File.WriteAllText(logPath + hostName + ".json", archives.ToJson());
+
+            Console.WriteLine(archives.ToJson());
         }
 
         static void SaveLog(List<Archive> archives, FileExtension extension, string path)
