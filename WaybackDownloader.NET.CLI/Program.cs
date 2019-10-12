@@ -24,10 +24,9 @@ namespace com.erlange.wbmdl
         //static readonly string subDir = "/websites/";
         static readonly string subDir = "/";
         static readonly string logSubDir = "/logs/";
-        static readonly object locker = new object();
-        static Mutex mutex = new Mutex(false, "locker");
+        static readonly object threadLocker = new object();
         static int archiveCount = 1;
-        static int threadCount = 0;
+        static int errorCount = 0;
 
         //delegate void PrintCallback(object what);
 
@@ -44,7 +43,6 @@ namespace com.erlange.wbmdl
 
         static void Main(string[] args)
         {
-            DateTime start, finish;
             archiveCount = 0;
             ShowBanner();
 
@@ -64,76 +62,17 @@ namespace com.erlange.wbmdl
                 string path;
 
                 if (string.IsNullOrEmpty(opts.OutputDir))
-                {
-                    //path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" + hostName;
                     path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" ;
-
-                }
                 else
-                {
                     path = opts.OutputDir + "/" + subDir + "/" ;
-                }
 
-                var latest = from a in archives
-                             where a.Length != 0
-                             group a by a.LocalPath
-                        into g
-                             select new
-                             {
-                                 LocalPath = g.Key,
-                                 maxTimestamp = (from t2 in g select t2.Timestamp).Max()
-                             }
-                        ;
-                var latestArchives = (from a in archives
-                                     join f in latest
-                                     on
-                                     new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
-                                     select a).ToList<Archive>();
-                        ;
+                var archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
 
-                var archivesToDownload = opts.AllTimestamps ? archives : latestArchives;
-                 
+                if (!opts.ListOnly)
+                    StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps);
+
                 SaveLog(archives, FileExtension.CSV, path);
                 SaveLog(archives, FileExtension.JSON, path);
-
-                if (opts.Threadcount <= 1)
-                {
-                    start = DateTime.Now;
-                    DownloadArchives(archivesToDownload.ToList<Archive>(), path, opts.AllTimestamps);
-                    finish = DateTime.Now;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
-                    Console.ResetColor();
-                }
-                else
-                {
-                    start = DateTime.Now;
-                    Thread[] threads = new Thread[opts.Threadcount+6];
-
-                    int pageSize = (archivesToDownload.Count / opts.Threadcount) + 1;
-                    for (int i = 0; i < opts.Threadcount; i++)
-                    {
-                        List<Archive> splitArchives = archivesToDownload.Skip(i * pageSize).Take(pageSize).ToList();
-                        System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(splitArchives, path, opts.AllTimestamps));
-                        //threads[i] = new System.Threading.Thread(() => DownloadArchives(a, path, opts.AllTimestamps));
-                        threads[i] = new System.Threading.Thread(threadStart);
-                        //threads[i].Name = "T" + (i + 1);
-                    }
-                    for (int i = 0; i < opts.Threadcount; i++)
-                    {
-                        threads[i].Start();
-                    }
-
-                    for (int i = 0; i < opts.Threadcount; i++)
-                    {
-                        threads[i].Join();
-                    }
-                    finish = DateTime.Now;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Operation/thread completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(path), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(path));
-                    Console.ResetColor();
-
-                }
             });
 
 
@@ -144,14 +83,67 @@ namespace com.erlange.wbmdl
             }
         }
 
-        static void ParseArgs(string[] args)
+        static List<Archive> GetLatestOnly(List<Archive> archives)
         {
-            Parser parser = Parser.Default;
-            var result = parser.ParseArguments<Options>(args).MapResult(
-                (Options opts) => BuildOptions(opts)
-                , (parserErrors) => 1.ToString()
-                );
+            var latest = from a in archives
+                         where a.Length != 0
+                         group a by a.LocalPath
+                         into g
+                         select new
+                         {
+                             LocalPath = g.Key,
+                             maxTimestamp = (from t2 in g select t2.Timestamp).Max()
+                         };
+
+            var latestArchives = from a in archives
+                                  join f in latest
+                                  on
+                                  new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
+                                  select a;
+            return latestArchives.ToList<Archive>();
         }
+
+        static void StartDownload(List<Archive> archives, string outDir, int threadCount, bool isAllTimestamps)
+        {
+            DateTime start, finish;
+            if (threadCount <= 1)
+            {
+                start = DateTime.Now;
+                DownloadArchives(archives.ToList<Archive>(), outDir, isAllTimestamps);
+                finish = DateTime.Now;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s. Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(outDir));
+                Console.ResetColor();
+            }
+            else
+            {
+                start = DateTime.Now;
+                Thread[] threads = new Thread[threadCount];
+
+                int pageSize = (archives.Count / threadCount) + 1;
+                for (int i = 0; i < threadCount; i++)
+                {
+                    List<Archive> splitArchives = archives.Skip(i * pageSize).Take(pageSize).ToList();
+                    System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(splitArchives, outDir, isAllTimestamps));
+                    threads[i] = new System.Threading.Thread(threadStart);
+                    //threads[i].Name = "T" + (i + 1);
+                }
+                for (int i = 0; i < threadCount; i++)
+                    threads[i].Start();
+
+                for (int i = 0; i < threadCount; i++)
+                    threads[i].Join();
+
+                finish = DateTime.Now;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Operation/thread completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s." );
+                Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(outDir));
+                Console.WriteLine("Error: " + errorCount + " item(s).");
+                Console.ResetColor();
+
+            }
+        }
+
 
         static string BuildOptions(Options opts)
         {
@@ -249,7 +241,9 @@ namespace com.erlange.wbmdl
                             count++;
                         }
                         Console.SetCursorPosition(x, y);
-                        Console.WriteLine("Found " + archives.Count + " item(s).       ");
+                        Console.WriteLine("Found " + archives.Count + " total item(s).       ");
+                        Console.Write(" with " + GetLatestOnly(archives).Count + " unique item(s).       ");
+                        Console.WriteLine();
                     }
                 }
             }
@@ -321,15 +315,16 @@ namespace com.erlange.wbmdl
                 Directory.CreateDirectory(dirPath);
                 client.DownloadFile(archive.UrlId, filePath);
 
-                lock (locker)
+                lock (threadLocker)
                     archiveCount++;
 
                 Console.WriteLine(Thread.CurrentThread.Name + " " + archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
             }
             catch (Exception ex)
             {
-                lock (locker)
+                lock (threadLocker)
                 {
+                    errorCount++;
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
                     Console.WriteLine("Error message: " + ex.Message);
@@ -338,10 +333,8 @@ namespace com.erlange.wbmdl
             }
         }
 
-        static void Print(object what)
-        {
-            Console.WriteLine(what);
-        }
+
+
 
     }
 
