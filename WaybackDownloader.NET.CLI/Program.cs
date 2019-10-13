@@ -18,15 +18,13 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        //private static string finalUrl = string.Empty;
         static readonly string webUrl = "http://web.archive.org/web/";
         static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
-        //static readonly string subDir = "/websites/";
         static readonly string subDir = "/";
         static readonly string logSubDir = "/logs/";
         static readonly object threadLocker = new object();
-        static int archiveCount = 1;
-        static int errorCount = 0;
+        static int archiveCount;
+        static int errorCount;
 
         //delegate void PrintCallback(object what);
 
@@ -62,9 +60,9 @@ namespace com.erlange.wbmdl
                 string path;
 
                 if (string.IsNullOrEmpty(opts.OutputDir))
-                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/" ;
+                    path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/" + subDir + "/";
                 else
-                    path = opts.OutputDir + "/" + subDir + "/" ;
+                    path = opts.OutputDir + "/" + subDir + "/";
 
                 var archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
 
@@ -132,7 +130,7 @@ namespace com.erlange.wbmdl
                     List<Archive> splitArchives = archives.Skip(i * pageSize).Take(pageSize).ToList();
                     System.Threading.ThreadStart threadStart = new System.Threading.ThreadStart(() => DownloadArchives(splitArchives, outDir, isAllTimestamps));
                     threads[i] = new System.Threading.Thread(threadStart);
-                    //threads[i].Name = "T" + (i + 1);
+                    threads[i].Name = "T" + (i + 1);
                 }
                 for (int i = 0; i < threadCount; i++)
                     threads[i].Start();
@@ -434,19 +432,19 @@ namespace com.erlange.wbmdl
         [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
         public string Limit { get; set; }
 
-        [Option('a',  HelpText = "All timestamps. Retrieve snapshots for all timestamps.")]
+        [Option('a',  HelpText = "All timestamps. Retrieves snapshots for all timestamps.")]
         public bool AllTimestamps { get; set; }
 
-        [Option(shortName: 'c', longName: "count", Default = 1, HelpText = "Thread counts. Maximum concurrent processes.")]
+        [Option(shortName: 'c', longName: "count", Default = 1, HelpText = "Number of concurrent processes. \nCan speed up the process but requires more memory.")]
         public int Threadcount { get; set; }
 
         [Option('A',"All", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
         public bool AllStatus { get; set; }
 
-        [Option('X', "exact", HelpText = "Download only the url provided and not the full site.")]
+        [Option('X', "exact", HelpText = "Downloads only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
 
-        [Option('L', "list", HelpText = "Only list the urls in a JSON format with the archived timestamps, won't download anything")]
+        [Option('L', "list", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything")]
         public bool ListOnly { get; set; }
 
         //[Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
