@@ -72,11 +72,11 @@ namespace com.erlange.wbmdl
                     StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps);
 
                 if (!opts.ListOnly)
-                    SaveLog(archives, FileExtension.JSON, path);
+                    SaveList(archives, FileExtension.JSON, path);
                 else
                 {
-                    SaveLog(archives, FileExtension.JSON);
-                    SaveLog(archives, FileExtension.JSON, path);
+                    SaveList(archives, FileExtension.JSON);
+                    SaveList(archives, FileExtension.JSON, path);
                 }
 
             });
@@ -91,7 +91,7 @@ namespace com.erlange.wbmdl
 
         static List<Archive> GetLatestOnly(List<Archive> archives)
         {
-            var latest = from a in archives
+            var groupByLatest = from a in archives
                          where a.Length != 0
                          group a by a.LocalPath
                          into g
@@ -102,7 +102,7 @@ namespace com.erlange.wbmdl
                          };
 
             var latestArchives = from a in archives
-                                  join f in latest
+                                  join f in groupByLatest
                                   on
                                   new { X1 = a.LocalPath, X2 = a.Timestamp } equals new { X1 = f.LocalPath, X2 = f.maxTimestamp }
                                   select a;
@@ -263,7 +263,7 @@ namespace com.erlange.wbmdl
             return archives;
         }
 
-        static void SaveLog(List<Archive> archives, FileExtension extension)
+        static void SaveList(List<Archive> archives, FileExtension extension)
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
@@ -272,7 +272,7 @@ namespace com.erlange.wbmdl
             Console.WriteLine(archives.ToJson());
         }
 
-        static void SaveLog(List<Archive> archives, FileExtension extension, string path)
+        static void SaveList(List<Archive> archives, FileExtension extension, string path)
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
