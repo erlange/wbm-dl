@@ -23,8 +23,8 @@ namespace com.erlange.wbmdl
         static readonly string subDir = "/";
         static readonly string logSubDir = "/logs/";
         static readonly object threadLocker = new object();
-        static int archiveCount;
-        static int errorCount;
+        static readonly object errorLocker = new object();
+        static int archiveCount, errorCount, totalCount;
 
         //delegate void PrintCallback(object what);
 
@@ -64,7 +64,9 @@ namespace com.erlange.wbmdl
                 else
                     path = opts.OutputDir + "/" + subDir + "/";
 
-                var archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
+                List<Archive> archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
+
+                totalCount = archivesToDownload.Count;
 
                 if (!opts.ListOnly)
                     StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps);
@@ -141,7 +143,7 @@ namespace com.erlange.wbmdl
                 finish = DateTime.Now;
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Operation/thread completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s." );
-                Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " saved in " + Path.GetFullPath(outDir));
+                Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " item(s) saved in " + Path.GetFullPath(outDir));
                 Console.WriteLine("Error: " + errorCount + " item(s).");
                 Console.ResetColor();
 
@@ -315,11 +317,11 @@ namespace com.erlange.wbmdl
                 lock (threadLocker)
                     archiveCount++;
 
-                Console.WriteLine(Thread.CurrentThread.Name + " " + archiveCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath));
+                Console.WriteLine(archiveCount + "/" + totalCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath)+ " " + DateTime.Now.ToString("yyyyMMdd hh:mm:ss"));
             }
             catch (Exception ex)
             {
-                lock (threadLocker)
+                lock (errorLocker)
                 {
                     errorCount++;
                     Console.ForegroundColor = ConsoleColor.Red;
