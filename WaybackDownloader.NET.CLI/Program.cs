@@ -25,6 +25,7 @@ namespace com.erlange.wbmdl
         static readonly object threadLocker = new object();
         static readonly object errorLocker = new object();
         static int archiveCount, errorCount, totalCount;
+        static List<Log> logs = new List<Log>();
 
         //delegate void PrintCallback(object what);
 
@@ -68,15 +69,16 @@ namespace com.erlange.wbmdl
 
                 totalCount = archivesToDownload.Count;
 
-                if (!opts.ListOnly)
-                    StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps);
-
-                if (!opts.ListOnly)
-                    SaveList(archives, FileExtension.JSON, path);
+                if (opts.ListOnly)
+                {
+                    SaveList(archives, FileType.JSON);
+                    SaveList(archives, FileType.JSON,path);
+                }
                 else
                 {
-                    SaveList(archives, FileExtension.JSON);
-                    SaveList(archives, FileExtension.JSON, path);
+                    StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps);
+                    SaveList(archives, FileType.JSON,path);
+                    SaveLog(logs, FileType.JSON, path);
                 }
 
             });
@@ -263,29 +265,57 @@ namespace com.erlange.wbmdl
             return archives;
         }
 
-        static void SaveList(List<Archive> archives, FileExtension extension)
+        static void SaveList(List<Archive> archives, FileType extension)
         {
-            System.Uri uri = new Uri(archives.FirstOrDefault().Original);
-            string hostName = uri.Host;
-            string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir ;
-            Directory.CreateDirectory(logPath);
-            Console.WriteLine(archives.ToJson());
+            //System.Uri uri = new Uri(archives.FirstOrDefault().Original);
+            //string hostName = uri.Host;
+            //string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir ;
+            //Directory.CreateDirectory(logPath);
+            if (extension == FileType.CSV)
+                Console.WriteLine(archives.ToCsv());
+            else if (extension == FileType.JSON)
+                Console.WriteLine(archives.ToJson());
         }
 
-        static void SaveList(List<Archive> archives, FileExtension extension, string path)
+        static void SaveList(List<Archive> archives, FileType extension, string path)
         {
             System.Uri uri = new Uri(archives.FirstOrDefault().Original);
             string hostName = uri.Host;
             string logPath = path + logSubDir ;
             Directory.CreateDirectory(logPath);
 
-            if (extension == FileExtension.CSV)
+            if (extension == FileType.CSV)
                 File.WriteAllText(logPath + hostName + ".csv", archives.ToCsv());
-            else if (extension == FileExtension.JSON)
+            else if (extension == FileType.JSON)
                 File.WriteAllText(logPath + hostName + ".json", archives.ToJson());
         }
 
-        enum FileExtension
+        static void SaveLog(List<Log> logs, FileType extension)
+        {
+            //System.Uri uri = new Uri(logs.FirstOrDefault().Original);
+            //string hostName = uri.Host;
+            //string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir;
+            //Directory.CreateDirectory(logPath);
+            if (extension == FileType.JSON)
+                Console.WriteLine(logs.ToJson());
+            if (extension == FileType.CSV)
+                Console.WriteLine(logs.ToCsv());
+
+        }
+        static void SaveLog(List<Log> logs, FileType extension, string path)
+        {
+            System.Uri uri = new Uri(logs.FirstOrDefault().Original);
+            string hostName = uri.Host;
+            string logPath = path + logSubDir;
+            Directory.CreateDirectory(logPath);
+
+            if (extension == FileType.CSV)
+                File.WriteAllText(logPath + hostName + ".log.csv", logs.ToCsv());
+            else if (extension == FileType.JSON)
+                File.WriteAllText(logPath + hostName + ".log.json", logs.ToJson());
+        }
+
+        enum FileType
         {
             CSV=1, JSON=2
         }
@@ -318,6 +348,17 @@ namespace com.erlange.wbmdl
                     archiveCount++;
 
                 Console.WriteLine(archiveCount + "/" + totalCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath)+ " " + DateTime.Now.ToString("yyyyMMdd hh:mm:ss"));
+
+                logs.Add(new Log()
+                {
+                    Num = archiveCount,
+                    Original = archive.Original,
+                    Source = archive.UrlId,
+                    Status = "Succeeded",
+                    ErrorMsg = "",
+                    Target = Path.GetFullPath(filePath),
+                    Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
+                });
             }
             catch (Exception ex)
             {
@@ -328,6 +369,16 @@ namespace com.erlange.wbmdl
                     Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
                     Console.WriteLine("Error message: " + ex.Message);
                     Console.ResetColor();
+                    logs.Add(new Log() {
+                        Num = archiveCount,
+                        Original = archive.Original,
+                        Source = archive.UrlId,
+                        Status = "Failed",
+                        ErrorMsg = ex.Message,
+                        Target = "",
+                        Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
+                    });
+
                 }
             }
         }
@@ -368,6 +419,13 @@ namespace com.erlange.wbmdl
             serializer.WriteObject(stream, value);
             return Encoding.Default.GetString(stream.ToArray());
         }
+        public static string ToJson(this List<Log> value)
+        {
+            MemoryStream stream = new MemoryStream();
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<Log>));
+            serializer.WriteObject(stream, value);
+            return Encoding.Default.GetString(stream.ToArray());
+        }
 
         public static string ToCsv(this List<Archive> value)
         {
@@ -399,6 +457,29 @@ namespace com.erlange.wbmdl
             }
             return builder.ToString();
         }
+        public static string ToCsv(this List<Log> value)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (Log a in value)
+            {
+                builder.Append(a.Num);
+                builder.Append(',');
+                builder.Append(a.Original);
+                builder.Append(',');
+                builder.Append(a.Source);
+                builder.Append(',');
+                builder.Append(a.Status);
+                builder.Append(',');
+                builder.Append(a.ErrorMsg);
+                builder.Append(',');
+                builder.Append(a.Target);
+                builder.Append(',');
+                builder.Append(a.Time);
+                builder.Append(',');
+                builder.AppendLine();
+            }
+            return builder.ToString();
+        }
     }
 
     public class Archive
@@ -414,6 +495,17 @@ namespace com.erlange.wbmdl
         public string Filename { get; set; }
         public string LocalPath { get; set; }
         public string LocalPathTimestamp { get; set; }
+    }
+
+    public class Log
+    {
+        public int Num { get; set; }
+        public string Original { get; set; }
+        public string Source { get; set; }
+        public string Target { get; set; }
+        public string Status { get; set; }
+        public string ErrorMsg { get; set; }
+        public string Time { get; set; }
     }
 
 
