@@ -38,6 +38,13 @@ namespace com.erlange.wbmdl
             Console.ResetColor();
         }
 
+        static void Main2()
+        {
+            WebRequest request = WebRequest.Create("");
+            AsyncCallback GetResponseAsyncCallBack = new AsyncCallback((a) => { });
+            request.BeginGetResponse((a) => {}, null);
+
+        }
 
 
         static void Main(string[] args)
@@ -45,7 +52,6 @@ namespace com.erlange.wbmdl
             archiveCount = 0;
             ShowBanner();
 
-            //PrintCallback printCallback = new PrintCallback(Print);
             Parser parser = Parser.Default;
             var result = parser.ParseArguments<Options>(args);
             result.WithParsed<Options>((Options opts) =>
@@ -190,15 +196,33 @@ namespace com.erlange.wbmdl
             return resultUrl;
         }
 
+        static void DisplayWaiting()
+        {
+            int y = Console.CursorTop;
+            string waitStatus = "Getting archived list";
+            Console.Write(waitStatus);
+            int x = waitStatus.Length;
+            int i=0;
+            while (true)
+            {
+                i++;
+                Console.SetCursorPosition(x + (i % 5), y);
+                Console.Write(".");
+                Thread.Sleep(100);
+            }
+        }
+
         static List<Archive> GetResponse(string url)
         {
             List<Archive> archives = new List<Archive>();
             int count = 0;
             int y = Console.CursorTop;
             int x = Console.CursorLeft;
-            Console.WriteLine("Getting archived list...");
+            Thread t = new Thread(() => DisplayWaiting());
+            //Console.WriteLine("Getting archived list...");
             try
             {
+                t.Start();
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -246,6 +270,9 @@ namespace com.erlange.wbmdl
                             //Console.WriteLine(line);
                             count++;
                         }
+                        t.Abort();
+                        t.Join();
+
                         Console.SetCursorPosition(x, y);
                         Console.WriteLine("Found " + archives.Count + " total item(s).       ");
                         Console.WriteLine(" with " + GetLatestOnly(archives).Count + " unique/latest item(s).       ");
