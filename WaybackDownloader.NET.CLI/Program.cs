@@ -196,19 +196,22 @@ namespace com.erlange.wbmdl
             return resultUrl;
         }
 
+
         static void DisplayWaiting()
         {
             int y = Console.CursorTop;
-            string waitStatus = "Getting archived list";
-            Console.Write(waitStatus);
-            int x = waitStatus.Length;
-            int i=0;
+            string waitStatus = "Getting archived list. Please wait";
+            int x = Console.CursorLeft;
+            int i = 0;
+            const int max= 5;
             while (true)
             {
+                Console.SetCursorPosition(0, y);
+                Console.Write(" ".PadRight(Console.WindowWidth, ' '));
+                Console.SetCursorPosition(0, y);
+                Console.Write(waitStatus.PadRight(waitStatus.Length + (i % max), '.'));
+                Thread.Sleep(250);
                 i++;
-                Console.SetCursorPosition(x + (i % 5), y);
-                Console.Write(".");
-                Thread.Sleep(100);
             }
         }
 
@@ -273,6 +276,8 @@ namespace com.erlange.wbmdl
                         t.Abort();
                         t.Join();
 
+                        Console.SetCursorPosition(x, y);
+                        Console.Write(" ".PadRight(Console.WindowWidth, ' '));
                         Console.SetCursorPosition(x, y);
                         Console.WriteLine("Found " + archives.Count + " total item(s).       ");
                         Console.WriteLine(" with " + GetLatestOnly(archives).Count + " unique/latest item(s).       ");
