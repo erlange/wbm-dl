@@ -27,7 +27,6 @@ namespace com.erlange.wbmdl
         static int archiveCount, errorCount, totalCount;
         static List<Log> logs = new List<Log>();
 
-        //delegate void PrintCallback(object what);
 
         static void ShowBanner()
         {
@@ -36,14 +35,6 @@ namespace com.erlange.wbmdl
             Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2016 - eri.airlangga@gmail.com");
             Console.WriteLine();
             Console.ResetColor();
-        }
-
-        static void Main2()
-        {
-            WebRequest request = WebRequest.Create("");
-            AsyncCallback GetResponseAsyncCallBack = new AsyncCallback((a) => { });
-            request.BeginGetResponse((a) => {}, null);
-
         }
 
 
@@ -199,18 +190,18 @@ namespace com.erlange.wbmdl
 
         static void DisplayWaiting()
         {
-            int y = Console.CursorTop;
+            int yy = Console.CursorTop;
             string waitStatus = "Getting archived list. Please wait";
-            int x = Console.CursorLeft;
             int i = 0;
-            const int max= 5;
+            const int max= 6;
             while (true)
             {
-                Console.SetCursorPosition(0, y);
-                Console.Write(" ".PadRight(Console.WindowWidth, ' '));
-                Console.SetCursorPosition(0, y);
+                Console.SetCursorPosition(0, yy);
+                Console.Write(" ".PadRight(waitStatus.Length + max, ' '));
+                //Console.Write(waitStatus.PadRight(waitStatus.Length + (i % max), ' '));
+                Console.SetCursorPosition(0, yy);
                 Console.Write(waitStatus.PadRight(waitStatus.Length + (i % max), '.'));
-                Thread.Sleep(250);
+                Thread.Sleep(200);
                 i++;
             }
         }
@@ -222,7 +213,6 @@ namespace com.erlange.wbmdl
             int y = Console.CursorTop;
             int x = Console.CursorLeft;
             Thread t = new Thread(() => DisplayWaiting());
-            //Console.WriteLine("Getting archived list...");
             try
             {
                 t.Start();
@@ -270,7 +260,6 @@ namespace com.erlange.wbmdl
                                 LocalPath = localPath,
                                 LocalPathTimestamp = localPathTimestamp
                             });
-                            //Console.WriteLine(line);
                             count++;
                         }
                         t.Abort();
@@ -299,10 +288,6 @@ namespace com.erlange.wbmdl
 
         static void SaveList(List<Archive> archives, FileType extension)
         {
-            //System.Uri uri = new Uri(archives.FirstOrDefault().Original);
-            //string hostName = uri.Host;
-            //string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir ;
-            //Directory.CreateDirectory(logPath);
             if (extension == FileType.CSV)
                 Console.WriteLine(archives.ToCsv());
             else if (extension == FileType.JSON)
@@ -324,10 +309,6 @@ namespace com.erlange.wbmdl
 
         static void SaveLog(List<Log> logs, FileType extension)
         {
-            //System.Uri uri = new Uri(logs.FirstOrDefault().Original);
-            //string hostName = uri.Host;
-            //string logPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + subDir + hostName + logSubDir;
-            //Directory.CreateDirectory(logPath);
             if (extension == FileType.JSON)
                 Console.WriteLine(logs.ToJson());
             if (extension == FileType.CSV)
