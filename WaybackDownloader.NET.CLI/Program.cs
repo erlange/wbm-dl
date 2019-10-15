@@ -18,9 +18,9 @@ namespace com.erlange.wbmdl
 {
     public class Program
     {
-        static readonly string webUrl = "http://web.archive.org/web/";
+        static readonly string webUrl = "https://web.archive.org/web/";
         static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
-        static readonly string subDir = "/";
+        static readonly string subDir = "/websites/";
         static readonly string logSubDir = "/logs/";
         static readonly object threadLocker = new object();
         static readonly object errorLocker = new object();
