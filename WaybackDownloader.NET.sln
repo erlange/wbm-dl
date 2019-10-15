@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaybackDownloader.NET.CLI",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E83EC4D-24EF-492E-8BE1-E71EDF98EC50}"
 	ProjectSection(SolutionItems) = preProject
-		WaybackDownloader.NET.CLI\README.md = WaybackDownloader.NET.CLI\README.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

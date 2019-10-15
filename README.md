@@ -1,4 +1,4 @@
-﻿> [!WARNING]
+> [!WARNING]
 > This `README` file is currently under construction.  It may change over times.
 # Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire website from the Internet Archive Wayback Machine.
