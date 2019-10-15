@@ -9,14 +9,14 @@ A C# implementation of wayback machine downloader.  Download an entire website f
 
 ## Basic Usage
 Run `wbm-dl` with `-u` parameter followed by the website name, for example `http://yoursite.com` :
-```console
+```
 wbm-dl -u yoursite.com
 ```
 Issuing the above command will download the website to the `./yoursite.com` directory.
 
 ## Advanced Usage
 
-```console
+```
 Wayback Downloader.NET Console for Windows 1.0.0.0
 http://erlange.github.com 
 
