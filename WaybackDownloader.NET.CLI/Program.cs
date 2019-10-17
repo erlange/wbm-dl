@@ -524,6 +524,7 @@ namespace com.erlange.wbmdl
 
     class Options
     {
+
         [Option('u', "url", HelpText = "The URL of the archived web site", Required = true)]
         public string Url { get; set; }
 
@@ -545,13 +546,13 @@ namespace com.erlange.wbmdl
         [Option(shortName: 'c', longName: "count", Default = 1, HelpText = "Number of concurrent processes. \nCan speed up the process but requires more memory.")]
         public int Threadcount { get; set; }
 
-        [Option('A',"All", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200")]
+        [Option('A',"All", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200.")]
         public bool AllStatus { get; set; }
 
         [Option('X', "exact", HelpText = "Downloads only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
 
-        [Option('L', "list", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything")]
+        [Option('L', "list", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
         public bool ListOnly { get; set; }
 
         //[Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
@@ -559,6 +560,9 @@ namespace com.erlange.wbmdl
 
         //[Option("exclude", HelpText = "Skip downloading of urls that match this filter.")]
         //public string ExcludeFilter { get; set; }
+
+        [Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
+        public bool Verbose { get; set; }
 
     }
 

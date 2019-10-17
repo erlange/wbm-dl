@@ -1,7 +1,7 @@
 > [!WARNING]
 > This `README` file is currently under construction.  It may change over times.
 # Wayback Machine Downloader
-A C# implementation of wayback machine downloader.  Download an entire website from the Internet Archive Wayback Machine.
+A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
 
 ## Requirements
 1. .NET Framework 4.0 
@@ -15,7 +15,7 @@ wbm-dl -u yoursite.com
 Issuing the above command will download the website to the `./yoursite.com` directory.
 
 ## Advanced Usage
-
+The additional parameter list will display when run without any parameters:
 ```
 Wayback Downloader.NET Console for Windows 1.0.0.0
 http://erlange.github.com 
