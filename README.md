@@ -8,19 +8,22 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 2. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library
 
 ## Basic Usage
-Run `wbm-dl` with `-u` parameter followed by the website name, for example `http://yoursite.com` :
+Run `wbm-dl` followed by the website name, for example `http://yoursite.com` :
 ```
-wbm-dl -u yoursite.com
+wbm-dl http://yoursite.com
 ```
-Issuing the above command will download the website to the `./yoursite.com` directory.
+or just
+```
+wbm-dl yoursite.com
+```
+
+Issuing the above command will download the website to the `./websites/yoursite.com` directory.
 
 ## Advanced Usage
 The additional parameter list will display when run without any parameters:
 ```
 Wayback Downloader.NET Console for Windows 1.0.0.0
 http://erlange.github.com 
-
-  -u, --url      Required. The URL of the archived web site
 
   -o, --out      Output/destination directory
 

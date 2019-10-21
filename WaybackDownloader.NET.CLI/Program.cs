@@ -47,6 +47,15 @@ namespace com.erlange.wbmdl
             var result = parser.ParseArguments<Options>(args);
             result.WithParsed<Options>((Options opts) =>
             {
+                if (string.IsNullOrEmpty(opts.Url))
+                {
+                    Console.WriteLine("You must input the URL, for example: \n\t wbm-dl yoursite.com \n\t wbm-dl http:\\\\yoursite.com \n\t wbm-dl yoursite.com -o c:\\outputdir");
+                    Console.WriteLine();
+                    Console.WriteLine("Use --help to display help screen.");
+                    return;
+                }
+
+
                 string url = BuildOptions(opts);
                 List<Archive> archives = GetResponse(url);
 
@@ -525,7 +534,9 @@ namespace com.erlange.wbmdl
     class Options
     {
 
-        [Option('u', "url", HelpText = "The URL of the archived web site", Required = true)]
+        //[Option('u', "url", HelpText = "The URL of the archived web site", Required = true)]
+        //public string Url { get; set; }
+        [Value(0, HelpText = "The URL of the archived web site", MetaName = "url", Required =true)]
         public string Url { get; set; }
 
         [Option('o', "out", HelpText = "Output/destination directory")]
