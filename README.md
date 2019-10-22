@@ -89,7 +89,7 @@ Upon completion, a `/logs` directory containing a log file will be created under
 The JSON-formatted log file contains completion status of each downloaded item.  If errors occured the log files can further be examined to accommodate manual download with the source URL for each item.
 
 ## Downloading Snapshots for All Timestamps
-By default, your files are archived in different snapshot for each timestamp.  You can specify the `-a` parameter to download all snapshot versions for each of your file.
+By default, your files are archived in different snapshots for each timestamp.  You can specify the `-a` parameter to download all snapshot versions for each file.
 
 The `-a` parameter is not to be confused with `-A` parameter, although they both can also be used in conjunction.
 ```
@@ -112,45 +112,45 @@ If this parameter is omitted the Wayback Machine Downloader will only download t
 ```
 -f, --from     From timestamp. 
 ```
-Optional. You can limit the result by specifying **the earliest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the file versions **on** or **after** the timestamp specified.
+Optional. You can limit the result by specifying **the earliest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the snapshots **on** or **after** the timestamp specified.
 
 ### Examples
 ```
 wbm-dl yoursite.com -o c:/download -f 20171101210000
 ```
-Will download only the file versions **on** or **after** *November 01, 2017* at *21:00:00*
+Will download only the snapshots **on** or **after** *November 01, 2017* at *21:00:00*
 
 ```
 wbm-dl yoursite.com -o c:/download -f 2017
 ```
-Will download only the file versions **in** or **after** the year of *2017*
+Will download only the snapshots **in** or **after** the year of *2017*
 
 ```
 wbm-dl yoursite.com -o c:/download -f 201707
 ```
-Will download only the file versions **in** or **after** *July 2017*
+Will download only the snapshots **in** or **after** *July 2017*
 
 ## To Timestamp
 ```
 -t, --to     To timestamp. 
 ```
-Optional. You can limit the result by specifying **the latest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the file versions **on** or **before** the timestamp specified.
+Optional. You can limit the result by specifying **the latest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the snapshots **on** or **before** the timestamp specified.
 
 ### Examples
 ```
 wbm-dl yoursite.com -o c:/download -t 20180915220000
 ```
-Will download only the file versions **on** or **before** *September 15, 2018* at *22:00:00*
+Will download only the snapshots **on** or **before** *September 15, 2018* at *22:00:00*
 
 ```
 wbm-dl yoursite.com -o c:/download -t 2018
 ```
-Will download only the file versions **in** or **before** the year of *2018*
+Will download only the snapshots **in** or **before** the year of *2018*
 
 ```
 wbm-dl yoursite.com -o c:/download -t 201804
 ```
-Will download only the file versions **in** or **before** *April 2018*.
+Will download only the snapshots **in** or **before** *April 2018*.
 
 ## Limiting Between Two Timestamps
 You can combine both `-f` and `-t` parameters to limit the result between two timestamps.  Since both parameters are inclusive, the from and to parameter values are included to the result.
@@ -159,19 +159,19 @@ You can combine both `-f` and `-t` parameters to limit the result between two ti
 ```
 wbm-dl yoursite.com -o c:/download -f 20171101210000 -t 20180915220000
 ```
-Will download only the file versions **between** *November 01, 2017 21:00:00* **and** *September 15, 2018 22:00:00*.
+Will download only the snapshots **between** *November 01, 2017 21:00:00* **and** *September 15, 2018 22:00:00*.
 
 
 ```
 wbm-dl yoursite.com -o c:/download  -f 2017 -t 201804
 ```
-Will download only the file versions **between** the year of *2017* **and** *April 2018*.
+Will download only the snapshots **between** the year of *2017* **and** *April 2018*.
 
 
 ```
 wbm-dl yoursite.com -o c:/download  -f 2017 -t 2017
 ```
-Will download only the file versions **in** the year of *2017*.
+Will download only the snapshots in *2017*.
 
 ## Limiting The Number of Files to Download
 ```
@@ -187,13 +187,13 @@ This `-l` parameter is not to be confused with the `-L` parameter. They both can
 ```
 wbm-dl yoursite.com -o c:/download -l 50
 ```
-Will download only 50 files **since** the earliest timestamp. The earliest version is included.
+Will download only 50 files **since** the earliest timestamp. The earliest timestamp is included to the result.
 
 
 ```
 wbm-dl yoursite.com -o c:/download -l -25
 ```
-Will download only 25 files **on** and **before** the latest timestamp. The latest version is included.
+Will download only 25 files **on** and **before** the latest timestamp. The latest timestamp is included to the result.
 
 
 ## Exact URL
