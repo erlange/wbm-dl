@@ -1,5 +1,4 @@
-> [!WARNING] :warning:
-> This `README` file is currently under construction.  It may change over times.
+> [!WARNING] :warning: This `README` file is currently under construction.  It may change over times.
 # Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
 
@@ -53,19 +52,96 @@ http://erlange.github.com
 
   --version      Display version information.
 ```
+## Specifying the URL to Download
+You must supply a valid URL address to download.
+### Examples
+Some valid examples URL are shown below:
+```
+wbm-dl yoursite.com 
+```
+```
+wbm-dl http://yoursite.com 
+```
+```
+wbm-dl https://yoursite.com 
+```
+ 
 
 ## Output/Destination Directory
 ```
-  -o, --out      Output/destination directory
+-o, --out      Output/destination directory
 ```
-The '-o' or `--out` option specifies the directory in which you want the websites to be saved.  A sub-directory called `/websites` will be created under the specified directory.
+Optional.  The `-o` or `--out` option specifies the directory in which you want the websites to be saved.   A sub-directory called `/websites` will be created under the specified directory.
 
 ### Examples
 ```
-    wbm-dl yoursite.com -o c:/download
+wbm-dl yoursite.com -o c:/download
 ```
+Will download to `c:/download/websites` directory.
+```
+wbm-dl yoursite.com -o ./myFolder/web
+```
+Will download to `[Current Directory]/myFolder/web/websites` directory.
+
+### Log Files
+Upon completion, a `/logs` directory containing a log file will be created under the `/websites` directory.
+The JSON-formatted log file contains completion status of each downloaded item.  If errors occured the log files can further be examined to accommodate manual download with the source URL for each item.
+
+## From Timestamp
+```
+-f, --from     From timestamp. 
+```
+Optional. You can limit the result by specifying **the earliest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the file versions **on** or **after** the timestamp specified.
+
+### Examples
+```
+wbm-dl yoursite.com -o c:/download -f 20171101210000
+```
+Will download only the file versions **on** or **after** *November 01, 2017* at *21:00:00*
+```
+wbm-dl yoursite.com -o c:/download -f 2017
+```
+Will download only the file versions **in** or **after** the year of *2017*
+```
+wbm-dl yoursite.com -o c:/download -f 201701
+```
+Will download only the file versions **in** or **after** *January 2017*
+
+## To Timestamp
+```
+-t, --to     To timestamp. 
+```
+Optional. You can limit the result by specifying **the latest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the file versions **on** or **before** the timestamp specified.
+
+### Examples
+```
+wbm-dl yoursite.com -o c:/download -t 20180915220000
+```
+Will download only the file versions **on** or **before** *September 15, 2018* at *22:00:00*
+```
+wbm-dl yoursite.com -o c:/download -t 2018
+```
+Will download only the file versions **in** or **before** the year of *2018*
+```
+wbm-dl yoursite.com -o c:/download -t 201804
+```
+Will download only the file versions **in** or **before** *April 2018*.
+
+## Limiting Between Two Timestamps
+You can combine both `-f` and `-t` parameters to limit the result between two timestamps.  Since both parameters are inclusive, the from and to parameter values are included to the result.
+
+### Examples
+```
+wbm-dl yoursite.com -o c:/download -f 20171101210000 -t 20180915220000
+```
+Will download only the file versions **between** *November 01, 2017 21:00:00* **and** *September 15, 2018 22:00:00*.
 
 ```
-    wbm-dl yoursite.com -o ./myFolder/web
+wbm-dl yoursite.com -o c:/download  -f 2017 -t 201804
 ```
+Will download only the file versions **between** the year of *2017* **and** *April 2018*.
 
+```
+wbm-dl yoursite.com -o c:/download  -f 2017 -t 2017
+```
+Will download only the file versions **in** the year of *2017*.

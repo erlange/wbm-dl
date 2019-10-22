@@ -55,6 +55,14 @@ namespace com.erlange.wbmdl
                     return;
                 }
 
+                if (!opts.Url.IsValidURL())
+                {
+
+                    Console.WriteLine("Please enter a valid URL, for example: \n\t wbm-dl yoursite.com \n\t wbm-dl http:\\\\yoursite.com \n\t wbm-dl yoursite.com -o c:\\outputdir");
+                    Console.WriteLine();
+                    Console.WriteLine("Use --help to display help screen.");
+                    return;
+                }
 
                 string url = BuildOptions(opts);
                 List<Archive> archives = GetResponse(url);
