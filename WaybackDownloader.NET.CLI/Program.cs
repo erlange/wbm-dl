@@ -608,7 +608,7 @@ namespace com.erlange.wbmdl
         [Option('A',"All", HelpText = "Retrieves snapshots for all HTTP status codes. \nIf omitted only retrieves the status code of 200.")]
         public bool AllHttpStatus { get; set; }
 
-        [Option('x', "exact", HelpText = "Downloads only the url provided and not the full site.")]
+        [Option('e', "exact", HelpText = "Downloads only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
 
         [Option('L', "list", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]

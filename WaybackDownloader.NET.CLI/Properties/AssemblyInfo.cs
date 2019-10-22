@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Console for Wayback Machine Downloader.NET for Windows")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("erlange.github.com")]
-[assembly: AssemblyProduct("Wayback Downloader.NET")]
-[assembly: AssemblyCopyright("Copyright © erlange.github.com 2019")]
+[assembly: AssemblyProduct("Wayback Machine Downloader.NET")]
+[assembly: AssemblyCopyright("Copyright © erlange.github.com 2018")]
 [assembly: AssemblyTrademark("WaybackDownloader.NET.CLI")]
 [assembly: AssemblyCulture("")]
 

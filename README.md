@@ -7,6 +7,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 
 
 * [**Requirements**](#Requirements)
+* [**Installation**](#Installation)
 * [**Basic Usage**](#basic-usage)
   * [Specifying the URL to Download](#specifying-the-url-to-download)
   * [Output Directory](#output-directory)
@@ -25,8 +26,21 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 * [**Contributing**](#Contributing)
 
 ## Requirements
-1. .NET Framework 4.0 
-2. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library
+1. .NET Framework 4.0 or newer.
+2. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
+
+## Installation
+* Chose from the release versions [here](https://github.com/erlange/wbm-dl/releases) or download the executable directly from [the latest release here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip)
+* Download the [ZIP file](https://github.com/erlange/wbm-dl/archive/master.zip) or clone this repository:
+    ```
+    mkdir [your-directory]
+    cd [your-directory]
+    git clone https://github.com/erlange/wbm-dl.git
+    cd wbm-dl
+    dir
+    ```
+    Then open the `.sln` file with Visual Studio
+
 
 ## Basic Usage
 At the very basic, you should run `wbm-dl` followed by the website name, for example `http://yoursite.com` :
