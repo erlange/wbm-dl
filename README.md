@@ -1,13 +1,35 @@
-> [!WARNING] :warning: This `README` file is currently under construction.  It may change over times.
+> :warning: This `README` file is currently under construction.  It may change over times.
 # Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
+
+
+##### Table of Contents
+
+
+* [**Requirements**](#Requirements)
+* [**Basic Usage**](#basic-usage)
+  * [Specifying the URL to Download](#specifying-the-url-to-download)
+  * [Output Directory](#output-directory)
+* [**Advanced Usage**](#Advanced-Usage)
+  * [Downloading Snapshots for All Timestamps](#Downloading-Snapshots-for-All-Timestamps)
+  * [From Timestamp](#From-Timestamp)
+  * [To Timestamp](#To-Timestamp)
+  * [Limiting Between Two Timestamps](#Limiting-Between-Two-Timestamps)
+  * [Limiting The Number of Files to Download](#Limiting-The-Number-of-Files-to-Download)
+  * [Exact URL](#Exact-URL)
+  * [Download All HTTP Status Codes](#Download-All-HTTP-Status-Codes)
+  * [Download Multiple Files at a Time](#Download-Multiple-Files-at-a-Time)
+  * [Displaying the File List Without Downloading](#Displaying-the-File-List-Without-Downloading)
+* [**Log Files**](#Log-Files)
+  * [Log File Metadata](#Log-File-Metadata)
+* [**Contributing**](#Contributing)
 
 ## Requirements
 1. .NET Framework 4.0 
 2. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library
 
 ## Basic Usage
-Run `wbm-dl` followed by the website name, for example `http://yoursite.com` :
+At the very basic, you should run `wbm-dl` followed by the website name, for example `http://yoursite.com` :
 ```
 wbm-dl http://yoursite.com
 ```
@@ -17,6 +39,21 @@ wbm-dl yoursite.com
 ```
 
 Issuing the above command will download the website to the `./websites/yoursite.com` directory.
+
+## Specifying the URL to Download
+You must supply a valid URL address to download.
+### Examples
+Some valid URL examples are shown below:
+```
+wbm-dl yoursite.com 
+```
+```
+wbm-dl http://yoursite.com 
+```
+```
+wbm-dl https://yoursite.com 
+```
+
 
 ## Advanced Usage
 The additional parameter list will display when run without any parameters:
@@ -52,22 +89,9 @@ http://erlange.github.com
 
   --version      Display version information.
 ```
-## Specifying the URL to Download
-You must supply a valid URL address to download.
-### Examples
-Some valid examples URL are shown below:
-```
-wbm-dl yoursite.com 
-```
-```
-wbm-dl http://yoursite.com 
-```
-```
-wbm-dl https://yoursite.com 
-```
  
 
-## Output/Destination Directory
+## Output Directory
 ```
 -o, --out      Output/destination directory
 ```
@@ -84,9 +108,6 @@ wbm-dl yoursite.com -o ./myFolder/web
 ```
 Will download to `[Current Directory]/myFolder/web/websites` directory.
 
-### Log Files
-Upon completion, a `/logs` directory containing a log file will be created under the `/websites` directory.
-The JSON-formatted log file contains completion status of each downloaded item.  If errors occured the log files can further be examined to accommodate manual download with the source URL for each item.
 
 ## Downloading Snapshots for All Timestamps
 By default, your files are archived in different snapshots for each timestamp.  You can specify the `-a` parameter to download all snapshot versions for each file.
@@ -248,3 +269,31 @@ Optional.  This option will only display the file list in JSON format and save i
 wbm-dl yoursite.com -o c:/download -L
 ```
 This will only display the file list on screen and save the list in the `c:/download/logs` directory.
+
+## Log Files
+Upon completion, a `/logs` directory containing a log file will be created under the `/websites` directory.
+The JSON-formatted log file contains completion status of each downloaded item.  If errors occured the log files can further be examined to accommodate manual download with the source URL for each item.
+
+The generated log filename will be `yoursite.com.log.json`
+
+### Log File Metadata
+The JSON-formatted log file contains metadata as follows:
+* `ErrorMsg`    
+    Contains the error message if error occured.
+* `Num`    
+    Line number.
+* `Original`    
+    Contains the original address of the URL. Not the archived location.
+* `Source`    
+    Contains the archived address of the URL.
+* `Status`    
+    Contains the HTTP status code.  If flag `-A` is omitted and no error occured the value will be `200 (OK)`.  If this value is empty an error might have occured.  You can then consult the `ErrorMsg` to examine the error and use the `Source` to manually download the individual file.
+* `Target`    
+    Contains full path in the output directory where the file is saved.  If this value is empty an error might have occured.  You can then consult the `ErrorMsg` to examine the error and use the `Source` to manually download the individual file.
+* `Time`    
+    The time the `Source` responds to the request. The time is in `yyyyMMdd hh:mm:ss` .NET format and might not conform to the standard JSON datetime format.
+
+## Contributing
+Contributions are welcome.  Just pull an issue or pull request from GitHub.
+
+
