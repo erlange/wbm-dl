@@ -1,4 +1,4 @@
-> [!WARNING]
+> [!WARNING] :warning:
 > This `README` file is currently under construction.  It may change over times.
 # Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
@@ -53,3 +53,19 @@ http://erlange.github.com
 
   --version      Display version information.
 ```
+
+## Output/Destination Directory
+```
+  -o, --out      Output/destination directory
+```
+The '-o' or `--out` option specifies the directory in which you want the websites to be saved.  A sub-directory called `/websites` will be created under the specified directory.
+
+### Examples
+```
+    wbm-dl yoursite.com -o c:/download
+```
+
+```
+    wbm-dl yoursite.com -o ./myFolder/web
+```
+
