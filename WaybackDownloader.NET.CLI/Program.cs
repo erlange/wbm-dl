@@ -22,6 +22,7 @@ namespace com.erlange.wbmdl
         static readonly string cdcUrl = "web.archive.org/cdx/search/cdx";
         static readonly string subDir = "/websites/";
         static readonly string logSubDir = "/logs/";
+        static readonly string defaultIndexFile = "index.html";
         static readonly object threadLocker = new object();
         static readonly object errorLocker = new object();
         static int archiveCount, errorCount, totalCount;
@@ -65,6 +66,7 @@ namespace com.erlange.wbmdl
                 }
 
                 string url = BuildOptions(opts);
+                //Console.WriteLine(url); 
                 List<Archive> archives = GetResponse(url);
 
                 if (archives.Count == 0)
@@ -90,8 +92,8 @@ namespace com.erlange.wbmdl
                 }
                 else
                 {
-                    StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps, opts.AllHttpStatus);
                     SaveList(archives, FileType.JSON,path);
+                    StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps, opts.AllHttpStatus);
                     SaveLog(logs, FileType.JSON, path);
                 }
 
@@ -140,9 +142,18 @@ namespace com.erlange.wbmdl
             else
             {
                 start = DateTime.Now;
+                if (threadCount > archives.Count)
+                    threadCount = archives.Count;
+
                 Thread[] threads = new Thread[threadCount];
 
-                int pageSize = (archives.Count / threadCount) + 1;
+                int pageSize;
+                //int pageSize = (archives.Count / threadCount) + 1;
+                if ((archives.Count % threadCount)==0)
+                    pageSize = (archives.Count / threadCount) ;
+                else
+                    pageSize = (archives.Count / threadCount) + 1;
+
                 for (int i = 0; i < threadCount; i++)
                 {
                     List<Archive> splitArchives = archives.Skip(i * pageSize).Take(pageSize).ToList();
@@ -156,12 +167,18 @@ namespace com.erlange.wbmdl
                 for (int i = 0; i < threadCount; i++)
                     threads[i].Join();
 
+                
                 finish = DateTime.Now;
-                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s." );
                 Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " item(s) saved in " + Path.GetFullPath(outDir));
                 Console.WriteLine("Error: " + errorCount + " item(s).");
                 Console.WriteLine("Logs saved in: " + Path.GetFullPath(outDir + logSubDir));
+                Console.WriteLine("Below are some suggestions that may minimize risk of errors:");
+                Console.WriteLine("   - Decrease the number of threads (-c parameter)");
+                Console.WriteLine("   - Shorten the output directory name (-o parameter).");
+                Console.WriteLine("   - Use filters to limit the number of downloads (-l, -f, -t parameters).");
+                Console.WriteLine("In case of errors, you can manually download the file from the log file.");
                 Console.ResetColor();
             }
         }
@@ -250,8 +267,13 @@ namespace com.erlange.wbmdl
 
                             uri = new Uri(original);
 
-                            if (fileName.Length == 0)
-                                fileName = "index.html";
+                            //if (fileName.Length == 0)
+                            //    fileName = "index.html";
+
+                            if (urlId.EndsWith("/") || !fileName.Contains("."))
+                                fileName = defaultIndexFile;
+
+
 
                             localPath = uri.Host + "/" + uri.AbsolutePath.Replace(fileName, "");
                             localPath += HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
@@ -355,13 +377,16 @@ namespace com.erlange.wbmdl
         {
             string itemPath;
             System.Uri uri;
-            using (WebClient client = new WebClient())
+            if (archives !=null)
             {
-                foreach (Archive archive in archives)
+                using (WebClient client = new WebClient())
                 {
-                    uri = new Uri(archive.Original);
-                    itemPath = path + "/" + (isAllTimestamps ? archive.LocalPathTimestamp : archive.LocalPath);
-                    DownloadSingleArchive(client, archive, itemPath, isAllHttpStatus);
+                    foreach (Archive archive in archives)
+                    {
+                        uri = new Uri(archive.Original);
+                        itemPath = path + "/" + (isAllTimestamps ? archive.LocalPathTimestamp : archive.LocalPath);
+                        DownloadSingleArchive(client, archive, itemPath, isAllHttpStatus);
+                    }
                 }
             }
         }
@@ -369,23 +394,24 @@ namespace com.erlange.wbmdl
         {
             string dirPath = path.Replace(archive.Filename, "");
             string filePath = path;
-
             try
             {
-                Directory.CreateDirectory(dirPath);
+                if (!Directory.Exists(dirPath))
+                    Directory.CreateDirectory(dirPath);
+
                 client.DownloadFile(archive.UrlId, filePath);
 
                 lock (threadLocker)
                     archiveCount++;
 
-                Console.WriteLine(archiveCount + "/" + totalCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath)+ " " + DateTime.Now.ToString("yyyyMMdd hh:mm:ss"));
+                Console.WriteLine(archiveCount + "/" + totalCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath) + " " + DateTime.Now.ToString("yyyyMMdd hh:mm:ss"));
 
                 logs.Add(new Log()
                 {
                     Num = archiveCount,
                     Original = archive.Original,
                     Source = archive.UrlId,
-                    Status = "200 (OK)",
+                    Status = archive.StatusCode,
                     ErrorMsg = "",
                     Target = Path.GetFullPath(filePath),
                     Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
@@ -398,27 +424,31 @@ namespace com.erlange.wbmdl
                     try
                     {
                         System.Net.HttpWebResponse r = (System.Net.HttpWebResponse)ex.Response;
-
-                        filePath = path + "." + r.StatusCode.GetHashCode().ToString() + ".html";
-                        using (StreamReader reader = new StreamReader(r.GetResponseStream()))
+                        if (r != null)
                         {
-                            string s = reader.ReadToEnd();
-                            File.CreateText(filePath).WriteLine(s);
+                            filePath = path + "." + r.StatusCode.GetHashCode().ToString() + ".html";
+                            using (StreamReader reader = new StreamReader(r.GetResponseStream()))
+                            {
+                                lock (new object())
+                                {
+                                    File.CreateText(filePath).WriteLine(reader.ReadToEnd());
+                                }
+                            }
                         }
+
+                        lock (threadLocker)
+                            archiveCount++;
 
                         logs.Add(new Log()
                         {
                             Num = archiveCount,
                             Original = archive.Original,
                             Source = archive.UrlId,
-                            Status = r.StatusCode.GetHashCode().ToString() + " (" + r.StatusDescription + ")",
-                            ErrorMsg = "",
+                            Status = (r == null ? "(Not downloaded)" : r.StatusCode.GetHashCode().ToString() + " (" + r.StatusDescription + ")"),
+                            ErrorMsg = (r == null ? "Null response from the server" : ""),
                             Target = Path.GetFullPath(filePath),
                             Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
                         });
-
-                        lock (threadLocker)
-                            archiveCount++;
 
                         Console.WriteLine(archiveCount + "/" + totalCount + ". " + archive.Timestamp + " " + archive.Original + " --> " + Path.GetFullPath(filePath) + " " + DateTime.Now.ToString("yyyyMMdd hh:mm:ss"));
                     }
@@ -438,23 +468,27 @@ namespace com.erlange.wbmdl
         {
             lock (errorLocker)
             {
-                errorCount++;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
-                Console.WriteLine("Error message: " + ex.Message);
-                Console.ResetColor();
-                logs.Add(new Log()
+                if (archive != null)
                 {
-                    Num = archiveCount,
-                    Original = archive.Original,
-                    Source = archive.UrlId,
-                    Status = "",
-                    ErrorMsg = "Failed. " + ex.Message,
-                    Target = "",
-                    Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
-                });
-            }
+                    errorCount++;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
+                    Console.WriteLine("Error message: " + ex.Source + "; " + ex.ToString() + "; " + ex.StackTrace);
+                    //Console.WriteLine("Error message: " + ex.Source + "; " + ex.ToString() + "; " + ex.StackTrace);
 
+                    Console.ResetColor();
+                    logs.Add(new Log()
+                    {
+                        Num = archiveCount,
+                        Original = archive.Original,
+                        Source = archive.UrlId,
+                        Status = "",
+                        ErrorMsg = "Failed. Digest: " + archive.Digest + ". StatusCode: " + archive.StatusCode + ". Source: " + ex.Source + "; " + ex.ToString(),
+                        Target = "",
+                        Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
+                    });
+                }
+            }
         }
     }
 

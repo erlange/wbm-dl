@@ -12,6 +12,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
   * [Specifying the URL to Download](#specifying-the-url-to-download)
   * [Output Directory](#output-directory)
 * [**Advanced Usage**](#Advanced-Usage)
+  * [Case Sensitive Parameter Names](#Case-Sensitive-Parameter-Names)
   * [Downloading Snapshots for All Timestamps](#Downloading-Snapshots-for-All-Timestamps)
   * [From Timestamp](#From-Timestamp)
   * [To Timestamp](#To-Timestamp)
@@ -27,7 +28,8 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 
 ## Requirements
 1. .NET Framework 4.0 or newer.
-2. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
+2. For development use Visual Studio 2010 or newer.
+3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
 * Chose from the release versions [here](https://github.com/erlange/wbm-dl/releases) or download the executable directly from [the latest release here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip)
@@ -39,7 +41,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
     cd wbm-dl
     dir
     ```
-    Then open the `.sln` file with Visual Studio
+    Then you can open the `.sln` and build the solution file with Visual Studio.
 
 
 ## Basic Usage
@@ -103,6 +105,9 @@ http://erlange.github.com
 
   --version      Display version information.
 ```
+
+#### Case Sensitive Parameter Names
+The Wayback Machine Downloader uses case sensitive parameter names, such as `-a` is different from `-A`. Careful consideration should be taken when typing such parameter names.
  
 
 ## Output Directory
@@ -287,6 +292,8 @@ This will only display the file list on screen and save the list in the `c:/down
 ## Log Files
 Upon completion, a `/logs` directory containing a log file will be created under the `/websites` directory.
 The JSON-formatted log file contains completion status of each downloaded item.  If errors occured the log files can further be examined to accommodate manual download with the source URL for each item.
+
+This log file will not be generated when using the `-L` or `--list` flag.
 
 The generated log filename will be `yoursite.com.log.json`
 
