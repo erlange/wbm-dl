@@ -66,7 +66,7 @@ namespace com.erlange.wbmdl
                 }
 
                 string url = BuildOptions(opts);
-                //Console.WriteLine(url); 
+                //Console.WriteLine(url);
                 List<Archive> archives = GetResponse(url);
 
                 if (archives.Count == 0)
@@ -216,6 +216,12 @@ namespace com.erlange.wbmdl
 
                 builder.Query = query.ToString();
                 resultUrl = builder.ToString();
+
+                if (!String.IsNullOrEmpty(opts.OnlyFilter))
+                    resultUrl = builder.ToString() + "&filter=original:" + opts.OnlyFilter;
+                if (!String.IsNullOrEmpty(opts.ExcludeFilter))
+                    resultUrl = builder.ToString() + "&filter=!original:" + opts.ExcludeFilter;
+
             }
 
             return resultUrl;
@@ -645,14 +651,14 @@ namespace com.erlange.wbmdl
         [Option('e', "exact", HelpText = "Downloads only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
 
-        [Option('L', "list", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
+        [Option('L', "List", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
         public bool ListOnly { get; set; }
 
-        //[Option("only", HelpText = "Restrict downloading to urls that match this filter.")]
-        //public string OnlyFilter { get; set; }
+        [Option('O',"Only", HelpText = "Restrict downloading to urls that match this filter.",Hidden =true)]
+        public string OnlyFilter { get; set; }
 
-        //[Option("exclude", HelpText = "Skip downloading of urls that match this filter.")]
-        //public string ExcludeFilter { get; set; }
+        [Option('X', "Exclude", HelpText = "Skip downloading of urls that match this filter.", Hidden = true)]
+        public string ExcludeFilter { get; set; }
 
         [Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
         public bool Verbose { get; set; }

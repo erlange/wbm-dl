@@ -158,17 +158,17 @@ Optional. You can limit the result by specifying **the earliest** timestamp in t
 ```
 wbm-dl yoursite.com -o c:/download -f 20171101210000
 ```
-Will download only the snapshots **on** or **after** *November 01, 2017* at *21:00:00*
+Will download only the snapshots since *November 01, 2017* at *21:00:00*
 
 ```
 wbm-dl yoursite.com -o c:/download -f 2017
 ```
-Will download only the snapshots **in** or **after** the year of *2017*
+Will download only the snapshots since the year of *2017*
 
 ```
 wbm-dl yoursite.com -o c:/download -f 201707
 ```
-Will download only the snapshots **in** or **after** *July 2017*
+Will download only the snapshots since *July 2017*
 
 ## To Timestamp
 ```
@@ -180,17 +180,17 @@ Optional. You can limit the result by specifying **the latest** timestamp in the
 ```
 wbm-dl yoursite.com -o c:/download -t 20180915220000
 ```
-Will download only the snapshots **on** or **before** *September 15, 2018* at *22:00:00*
+Will download only the snapshots until *September 15, 2018* at *22:00:00*
 
 ```
 wbm-dl yoursite.com -o c:/download -t 2018
 ```
-Will download only the snapshots **in** or **before** the year of *2018*
+Will download only the snapshots until the year of *2018*
 
 ```
 wbm-dl yoursite.com -o c:/download -t 201804
 ```
-Will download only the snapshots **in** or **before** *April 2018*.
+Will download only the snapshots until *April 2018*.
 
 ## Limiting Between Two Timestamps
 You can combine both `-f` and `-t` parameters to limit the result between two timestamps.  Since both parameters are inclusive, the from and to parameter values are included to the result.
@@ -199,19 +199,19 @@ You can combine both `-f` and `-t` parameters to limit the result between two ti
 ```
 wbm-dl yoursite.com -o c:/download -f 20171101210000 -t 20180915220000
 ```
-Will download only the snapshots **between** *November 01, 2017 21:00:00* **and** *September 15, 2018 22:00:00*.
+Will download only the snapshots since *November 01, 2017 21:00:00* until *September 15, 2018 22:00:00*.
 
 
 ```
 wbm-dl yoursite.com -o c:/download  -f 2017 -t 201804
 ```
-Will download only the snapshots **between** the year of *2017* **and** *April 2018*.
+Will download only the snapshots since *2017* until *April 2018*.
 
 
 ```
 wbm-dl yoursite.com -o c:/download  -f 2017 -t 2017
 ```
-Will download only the snapshots in *2017*.
+Will download only the snapshots during *2017*.
 
 ## Limiting The Number of Files to Download
 ```
@@ -304,9 +304,9 @@ The JSON-formatted log file contains metadata as follows:
 * `Num`    
     Line number.
 * `Original`    
-    Contains the original address of the URL. Not the archived location.
+    Contains the original location of the item.
 * `Source`    
-    Contains the archived address of the URL.
+    Contains the archived location of the item in the Internet Wayback Archive Machine.  You can use the value for manually downloading.
 * `Status`    
     Contains the HTTP status code.  If flag `-A` is omitted and no error occured the value will be `200 (OK)`.  If this value is empty an error might have occured.  You can then consult the `ErrorMsg` to examine the error and use the `Source` to manually download the individual file.
 * `Target`    
