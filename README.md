@@ -32,7 +32,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
-* Chose from the release versions [here](https://github.com/erlange/wbm-dl/releases) or download the executable directly from [the latest release here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip)
+* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip) or chose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
 * Download the [ZIP file](https://github.com/erlange/wbm-dl/archive/master.zip) or clone this repository:
     ```
     mkdir [your-directory]
@@ -42,6 +42,10 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
     dir
     ```
     Then you can open the `.sln` and build the solution file with Visual Studio.
+* From Visual Studio, run this command from the Package Manager Console window:
+    ```
+    PM> Install-Package CommandLineParser -Version 2.6.0
+    ```
 
 
 ## Basic Usage

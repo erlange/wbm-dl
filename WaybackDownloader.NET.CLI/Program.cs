@@ -83,6 +83,12 @@ namespace com.erlange.wbmdl
 
                 List<Archive> archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
 
+                if(!string.IsNullOrWhiteSpace(opts.OnlyFilter))
+                    archivesToDownload = archivesToDownload.Where<Archive>(a => a.Filename.IsMatch(opts.OnlyFilter)).ToList<Archive>();
+                if (!string.IsNullOrWhiteSpace(opts.ExcludeFilter))
+                    archivesToDownload = archivesToDownload.Where<Archive>(a => !a.Filename.IsMatch(opts.ExcludeFilter)).ToList<Archive>();
+
+
                 totalCount = archivesToDownload.Count;
 
                 if (opts.ListOnly)
@@ -509,6 +515,13 @@ namespace com.erlange.wbmdl
 
             Regex Rgx = new Regex(Pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
             return Rgx.IsMatch(URL);
+        }
+
+        public static bool IsMatch(this string url, string pattern)
+        {
+            //string fileTypePattern = @"^.*\.(jpg|JPG|gif|GIF|doc|DOC|pdf|PDF|)$";
+            Regex rgx = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            return rgx.IsMatch(url);
         }
 
         public static bool IsLong(this string value)
