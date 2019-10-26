@@ -152,7 +152,7 @@ If this parameter is omitted the Wayback Machine Downloader will only download t
 ```
 -f, --from     From timestamp. 
 ```
-Optional. You can limit the result by specifying **the earliest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the snapshots **on** or **after** the timestamp specified.
+Optional. You can limit the result by specifying **the earliest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the snapshots since the timestamp specified.
 
 ### Examples
 ```
@@ -174,7 +174,7 @@ Will download only the snapshots since *July 2017*
 ```
 -t, --to     To timestamp. 
 ```
-Optional. You can limit the result by specifying **the latest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the snapshots **on** or **before** the timestamp specified.
+Optional. You can limit the result by specifying **the latest** timestamp in the *yyyyMMddhhmmss* format. This parameter is inclusive, in which the value is included to the result. The Wayback Machine Downloader will only fetch the snapshots until the timestamp specified.
 
 ### Examples
 ```
@@ -233,7 +233,7 @@ Will download only 50 files **since** the earliest timestamp. The earliest times
 ```
 wbm-dl yoursite.com -o c:/download -l -25
 ```
-Will download only 25 files **on** and **before** the latest timestamp. The latest timestamp is included to the result.
+Will download only 25 files until the latest timestamp. The latest timestamp is included to the result.
 
 
 ## Exact URL
