@@ -251,11 +251,11 @@ wbm-dl yoursite.com -o c:/download -e
 ```
 Will download only the homepage html file of yoursite.com
 
-## Download Only Specific File Type
+## Download Only Specific Files
 ```
 -O, --Only
 ```
-Optional. You can download only specific file type (e.g., .jpg, .pdf, .doc, etc) using `-O` parameter. This parameter needs a string or a regex.
+Optional. You can filter the download to only a specific condition, for example you only want to download files of certain types (e.g., .jpg, .pdf, .doc, etc). This parameter needs a string or a regex.
 
 ### Examples
 ```
@@ -263,6 +263,18 @@ wbm-dl yoursite.com -o c:/download -O "^.*\.(jpg|gif|png|)$"
 ```
 This will download only image files of .jpg, .gif and .png types.
 
+
+## Excluding Specific Files
+```
+-X, --eXclude
+```
+Optional. In contrast with the `-O` parameter, you can exclude specific files using `-X` parameter. This parameter needs a string or a regex.
+
+### Examples
+```
+wbm-dl yoursite.com -o c:/download -X "^.*\.(jpg|gif|png|)$"
+```
+This will not download image files of .jpg, .gif and .png types.
 
 
 ## Download All HTTP Status Codes

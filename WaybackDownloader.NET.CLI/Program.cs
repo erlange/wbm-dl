@@ -671,11 +671,11 @@ namespace com.erlange.wbmdl
         [Option('O',"Only", HelpText = "Restrict downloading to urls that match this filter.")]
         public string OnlyFilter { get; set; }
 
-        [Option('X', "Exclude", HelpText = "Skip downloading of urls that match this filter.")]
+        [Option('X', "eXclude", HelpText = "Skip downloading of urls that match this filter.")]
         public string ExcludeFilter { get; set; }
 
-        [Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
-        public bool Verbose { get; set; }
+        //[Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
+        //public bool Verbose { get; set; }
 
     }
 
