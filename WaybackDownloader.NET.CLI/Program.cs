@@ -82,11 +82,11 @@ namespace com.erlange.wbmdl
                     path = opts.OutputDir + "/" + subDir + "/";
 
                 List<Archive> archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
-
-                if(!string.IsNullOrWhiteSpace(opts.OnlyFilter))
-                    archivesToDownload = archivesToDownload.Where<Archive>(a => a.Filename.IsMatch(opts.OnlyFilter)).ToList<Archive>();
+                //List<Archive> archivesToDownload=null;
+                if (!string.IsNullOrWhiteSpace(opts.OnlyFilter))
+                    archivesToDownload = archivesToDownload.Where<Archive>(a => a.Original.IsMatch(opts.OnlyFilter)).ToList<Archive>();
                 if (!string.IsNullOrWhiteSpace(opts.ExcludeFilter))
-                    archivesToDownload = archivesToDownload.Where<Archive>(a => !a.Filename.IsMatch(opts.ExcludeFilter)).ToList<Archive>();
+                    archivesToDownload = archivesToDownload.Where<Archive>(a => !a.Original.IsMatch(opts.ExcludeFilter)).ToList<Archive>();
 
 
                 totalCount = archivesToDownload.Count;
@@ -94,11 +94,11 @@ namespace com.erlange.wbmdl
                 if (opts.ListOnly)
                 {
                     SaveList(archives, FileType.JSON);
-                    SaveList(archives, FileType.JSON,path);
+                    //SaveList(archives, FileType.JSON,path);
                 }
                 else
                 {
-                    SaveList(archives, FileType.JSON,path);
+                    //SaveList(archives, FileType.JSON,path);
                     StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps, opts.AllHttpStatus);
                     SaveLog(logs, FileType.JSON, path);
                 }
@@ -223,10 +223,10 @@ namespace com.erlange.wbmdl
                 builder.Query = query.ToString();
                 resultUrl = builder.ToString();
 
-                if (!String.IsNullOrEmpty(opts.OnlyFilter))
-                    resultUrl = builder.ToString() + "&filter=original:" + opts.OnlyFilter;
-                if (!String.IsNullOrEmpty(opts.ExcludeFilter))
-                    resultUrl = builder.ToString() + "&filter=!original:" + opts.ExcludeFilter;
+                //if (!String.IsNullOrEmpty(opts.OnlyFilter))
+                //    resultUrl = builder.ToString() + "&filter=original:" + opts.OnlyFilter;
+                //if (!String.IsNullOrEmpty(opts.ExcludeFilter))
+                //    resultUrl = builder.ToString() + "&filter=!original:" + opts.ExcludeFilter;
 
             }
 
@@ -393,6 +393,7 @@ namespace com.erlange.wbmdl
             {
                 using (WebClient client = new WebClient())
                 {
+                    Console.WriteLine("Downloading " + archives.Count + " item(s)");
                     foreach (Archive archive in archives)
                     {
                         uri = new Uri(archive.Original);
@@ -519,8 +520,8 @@ namespace com.erlange.wbmdl
 
         public static bool IsMatch(this string url, string pattern)
         {
-            //string fileTypePattern = @"^.*\.(jpg|JPG|gif|GIF|doc|DOC|pdf|PDF|)$";
             Regex rgx = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            //string fileTypePattern = @"^.*\.(jpg|JPG|gif|GIF|doc|DOC|pdf|PDF|)$";
             return rgx.IsMatch(url);
         }
 
@@ -667,10 +668,10 @@ namespace com.erlange.wbmdl
         [Option('L', "List", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
         public bool ListOnly { get; set; }
 
-        [Option('O',"Only", HelpText = "Restrict downloading to urls that match this filter.",Hidden =true)]
+        [Option('O',"Only", HelpText = "Restrict downloading to urls that match this filter.")]
         public string OnlyFilter { get; set; }
 
-        [Option('X', "Exclude", HelpText = "Skip downloading of urls that match this filter.", Hidden = true)]
+        [Option('X', "Exclude", HelpText = "Skip downloading of urls that match this filter.")]
         public string ExcludeFilter { get; set; }
 
         [Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
