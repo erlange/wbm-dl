@@ -33,7 +33,7 @@ namespace com.erlange.wbmdl
         {
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2016 - eri.airlangga@gmail.com");
+            Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2016 - eri.airlangga@gmail.com" );
             Console.WriteLine();
             Console.ResetColor();
         }
@@ -99,6 +99,7 @@ namespace com.erlange.wbmdl
                 else
                 {
                     //SaveList(archives, FileType.JSON,path);
+                    Console.WriteLine("Downloading " + archivesToDownload.Count + " item(s)");
                     StartDownload(archivesToDownload, path, opts.Threadcount, opts.AllTimestamps, opts.AllHttpStatus);
                     SaveLog(logs, FileType.JSON, path);
                 }
@@ -180,11 +181,11 @@ namespace com.erlange.wbmdl
                 Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " item(s) saved in " + Path.GetFullPath(outDir));
                 Console.WriteLine("Error: " + errorCount + " item(s).");
                 Console.WriteLine("Logs saved in: " + Path.GetFullPath(outDir + logSubDir));
+                Console.WriteLine("In case of errors, you can manually download the file from the log file.");
                 Console.WriteLine("Below are some suggestions that may minimize risk of errors:");
                 Console.WriteLine("   - Decrease the number of threads (-c parameter)");
                 Console.WriteLine("   - Shorten the output directory name (-o parameter).");
                 Console.WriteLine("   - Use filters to limit the number of downloads (-l, -f, -t parameters).");
-                Console.WriteLine("In case of errors, you can manually download the file from the log file.");
                 Console.ResetColor();
             }
         }
@@ -393,7 +394,6 @@ namespace com.erlange.wbmdl
             {
                 using (WebClient client = new WebClient())
                 {
-                    Console.WriteLine("Downloading " + archives.Count + " item(s)");
                     foreach (Archive archive in archives)
                     {
                         uri = new Uri(archive.Original);
@@ -665,14 +665,15 @@ namespace com.erlange.wbmdl
         [Option('e', "exact", HelpText = "Downloads only the url provided and not the full site.")]
         public bool ExactUrl { get; set; }
 
-        [Option('L', "List", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
-        public bool ListOnly { get; set; }
-
-        [Option('O',"Only", HelpText = "Restrict downloading to urls that match this filter.")]
+        [Option('O', "Only", HelpText = "Restrict downloading to urls that match this filter.")]
         public string OnlyFilter { get; set; }
 
         [Option('X', "eXclude", HelpText = "Skip downloading of urls that match this filter.")]
         public string ExcludeFilter { get; set; }
+
+        [Option('L', "List", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
+        public bool ListOnly { get; set; }
+
 
         //[Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
         //public bool Verbose { get; set; }

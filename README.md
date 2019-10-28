@@ -6,25 +6,27 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 ##### Table of Contents
 
 
-* [**Requirements**](#Requirements)
-* [**Installation**](#Installation)
+* [**Requirements**](#requirements)
+* [**Installation**](#installation)
 * [**Basic Usage**](#basic-usage)
   * [Specifying the URL to Download](#specifying-the-url-to-download)
   * [Output Directory](#output-directory)
-* [**Advanced Usage**](#Advanced-Usage)
-  * [Case Sensitive Parameter Names](#Case-Sensitive-Parameter-Names)
-  * [Downloading Snapshots for All Timestamps](#Downloading-Snapshots-for-All-Timestamps)
-  * [From Timestamp](#From-Timestamp)
-  * [To Timestamp](#To-Timestamp)
-  * [Limiting Between Two Timestamps](#Limiting-Between-Two-Timestamps)
-  * [Limiting The Number of Files to Download](#Limiting-The-Number-of-Files-to-Download)
-  * [Exact URL](#Exact-URL)
-  * [Download All HTTP Status Codes](#Download-All-HTTP-Status-Codes)
-  * [Download Multiple Files at a Time](#Download-Multiple-Files-at-a-Time)
-  * [Displaying the File List Without Downloading](#Displaying-the-File-List-Without-Downloading)
-* [**Log Files**](#Log-Files)
-  * [Log File Metadata](#Log-File-Metadata)
-* [**Contributing**](#Contributing)
+* [**Advanced Usage**](#advanced-usage)
+  * [Case Sensitive Parameter Names](#case-sensitive-parameter-names)
+  * [Downloading Snapshots for All Timestamps](#downloading-snapshots-for-all-timestamps)
+  * [From Timestamp](#from-timestamp)
+  * [To Timestamp](#to-timestamp)
+  * [Limiting Between Two Timestamps](#limiting-between-two-timestamps)
+  * [Limiting The Number of Files to Download](#limiting-the-number-of-files-to-Download)
+  * [Exact URL](#exact-url)
+  * [Download Only Specific Files](#download-only-specific-Files)
+  * [Excluding Specific Files](#excluding-specific-files)
+  * [Download All HTTP Status Codes](#download-all-http-status-codes)
+  * [Download Multiple Files at a Time](#download-multiple-files-at-a-Time)
+  * [Displaying the File List Without Downloading](#displaying-the-file-list-Without-downloading)
+* [**Log Files**](#log-files)
+  * [Log File Metadata](#log-file-metadata)
+* [**Contributing**](#contributing)
 
 ## Requirements
 1. .NET Framework 4.0 or newer.
@@ -78,7 +80,7 @@ wbm-dl https://yoursite.com
 ## Advanced Usage
 The additional parameter list will display when run without any parameters:
 ```
-Wayback Downloader.NET Console for Windows 1.0.0.0
+wbm-dl (Wayback Machine Downloader)
 http://erlange.github.com 
 
   -o, --out      Output/destination directory
@@ -102,6 +104,10 @@ http://erlange.github.com
                  If omitted only retrieves the status code of 200
 
   -e, --exact    Downloads only the url provided and not the full site.
+
+  -O, --Only       Restrict downloading to urls that match this filter.
+
+  -X, --eXclude    Skip downloading of urls that match this filter.
 
   -L, --list     Displays only the list in a JSON format with the archived timestamps, does not download anything
 
