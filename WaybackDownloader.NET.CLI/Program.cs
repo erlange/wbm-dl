@@ -66,7 +66,8 @@ namespace com.erlange.wbmdl
                 }
 
                 string url = BuildOptions(opts);
-                Console.WriteLine(url);
+
+                //Console.WriteLine(url);
                 List<Archive> archives = GetResponse(url );
 
                 if (archives.Count == 0)
