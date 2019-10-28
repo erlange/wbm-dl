@@ -66,8 +66,8 @@ namespace com.erlange.wbmdl
                 }
 
                 string url = BuildOptions(opts);
-                //Console.WriteLine(url);
-                List<Archive> archives = GetResponse(url);
+                Console.WriteLine(url);
+                List<Archive> archives = GetResponse(url );
 
                 if (archives.Count == 0)
                     return;
@@ -199,7 +199,7 @@ namespace com.erlange.wbmdl
                 UriBuilder builder = new System.UriBuilder(cdcUrl);
                 var query = HttpUtility.ParseQueryString(string.Empty);
 
-                query["url"] = opts.Url + (opts.ExactUrl ? "" : "/*");
+                query["url"] =opts.Url + (opts.ExactUrl ? "" : "/*");
                 query["fl"] = "urlkey,digest,timestamp,original,mimetype,statuscode,length";
                 query["collapse"] = "digest";
                 query["pageSize"] = "1";
@@ -513,9 +513,9 @@ namespace com.erlange.wbmdl
 
             //https://regexr.com/3e6m0
             //string Pattern = @"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)";
-
+            
             Regex Rgx = new Regex(Pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            return Rgx.IsMatch(URL);
+            return Rgx.IsMatch(System.Uri.UnescapeDataString( URL));
         }
 
         public static bool IsMatch(this string url, string pattern)
