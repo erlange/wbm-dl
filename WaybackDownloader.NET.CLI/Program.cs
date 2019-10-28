@@ -84,9 +84,9 @@ namespace com.erlange.wbmdl
                 List<Archive> archivesToDownload = opts.AllTimestamps ? archives : GetLatestOnly(archives);
                 //List<Archive> archivesToDownload=null;
                 if (!string.IsNullOrWhiteSpace(opts.OnlyFilter))
-                    archivesToDownload = archivesToDownload.Where<Archive>(a => a.Original.IsMatch(opts.OnlyFilter)).ToList<Archive>();
+                    archivesToDownload = archivesToDownload.Where<Archive>(a => a.Original.IsMatch(opts.OnlyFilter)|| a.Filename.IsMatch(opts.OnlyFilter)).ToList<Archive>();
                 if (!string.IsNullOrWhiteSpace(opts.ExcludeFilter))
-                    archivesToDownload = archivesToDownload.Where<Archive>(a => !a.Original.IsMatch(opts.ExcludeFilter)).ToList<Archive>();
+                    archivesToDownload = archivesToDownload.Where<Archive>(a => !(a.Original.IsMatch(opts.ExcludeFilter) || a.Filename.IsMatch(opts.ExcludeFilter))).ToList<Archive>();
 
 
                 totalCount = archivesToDownload.Count;
