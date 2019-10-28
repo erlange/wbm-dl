@@ -270,11 +270,17 @@ wbm-dl yoursite.com -o c:/download -O "^.*\.(jpg|gif|png|)$"
 This will download only image files of .jpg, .gif and .png types.
 
 
+```
+wbm-dl yoursite.com -o c:/download -O "^.*\b(themes|green).*\b$"
+```
+This will download files containing the word `themes` or `green` in the path.
+
 ## Excluding Specific Files
 ```
 -X, --eXclude
 ```
 Optional. In contrast with the `-O` parameter, you can exclude specific files using `-X` parameter. This parameter needs a string or a regex.
+
 
 ### Examples
 ```
@@ -282,6 +288,10 @@ wbm-dl yoursite.com -o c:/download -X "^.*\.(jpg|gif|png|)$"
 ```
 This will not download image files of .jpg, .gif and .png types.
 
+```
+wbm-dl yoursite.com -o c:/download -X "^.*\b(themes|green).*\b$"
+```
+This will exclude the files containing the word `themes` or `green` in the path.
 
 ## Download All HTTP Status Codes
 ```

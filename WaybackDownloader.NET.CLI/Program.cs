@@ -230,6 +230,8 @@ namespace com.erlange.wbmdl
                 if (!String.IsNullOrWhiteSpace(opts.ExcludeFilter))
                     resultUrl = builder.ToString() + "&filter=!original:" + opts.ExcludeFilter;
 
+                //resultUrl = builder.ToString() + "&collapse=timestamp:" + opts.Collapse.ToString();
+
             }
 
             return resultUrl;
@@ -651,6 +653,9 @@ namespace com.erlange.wbmdl
 
         [Option('t',"to", HelpText = "To timestamp. Limits the archived result  UNTIL this timestamps. \nUse 1 to 14 digit with the format: yyyyMMddhhmmss \nIf omitted, retrieves results until the latest timestamp available. ")]
         public string To { get; set; }
+
+        [Option(shortName: 'C', longName: "Collapse", Default = 14,HelpText = "Collapse by timestamp's number of digit", Hidden = true)]
+        public int Collapse { get; set; }
 
         [Option('l', "limit", HelpText = "Limits the first N or the last N results. Negative number limits the last N results.")]
         public string Limit { get; set; }
