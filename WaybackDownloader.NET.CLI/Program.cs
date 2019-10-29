@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright © 2018 eri.airlangga@gmail.com
+//
+// Do what you want with this program
+// as long as the first line above is kept intact
+//
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -33,7 +39,7 @@ namespace com.erlange.wbmdl
         {
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2016 - eri.airlangga@gmail.com" );
+            Console.WriteLine("\twbm-dl (Wayback Machine Downloader) \n\t(C)2018 - eri.airlangga@gmail.com" );
             Console.WriteLine();
             Console.ResetColor();
         }
@@ -175,18 +181,20 @@ namespace com.erlange.wbmdl
                 for (int i = 0; i < threadCount; i++)
                     threads[i].Join();
 
-                
                 finish = DateTime.Now;
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s." );
                 Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " item(s) saved in " + Path.GetFullPath(outDir));
                 Console.WriteLine("Error: " + errorCount + " item(s).");
                 Console.WriteLine("Logs saved in: " + Path.GetFullPath(outDir + logSubDir));
-                Console.WriteLine("In case of errors, you can manually download the file from the log file.");
-                Console.WriteLine("Below are some suggestions that may minimize risk of errors:");
-                Console.WriteLine("   - Decrease the number of threads (-c parameter)");
-                Console.WriteLine("   - Shorten the output directory name (-o parameter).");
-                Console.WriteLine("   - Use filters to limit the number of downloads (-l, -f, -t parameters).");
+                if (errorCount > 0)
+                {
+                    Console.WriteLine("In case of errors, you can manually download the file from the log file.");
+                    Console.WriteLine("Below are some suggestions that may minimize risk of errors:");
+                    Console.WriteLine("   - Decrease the number of threads (-c parameter)");
+                    Console.WriteLine("   - Shorten the output directory name (-o parameter).");
+                    Console.WriteLine("   - Use filters to limit the number of downloads (-l, -f, -t parameters).");
+                }
                 Console.ResetColor();
             }
         }
@@ -283,13 +291,8 @@ namespace com.erlange.wbmdl
 
                             uri = new Uri(original);
 
-                            //if (fileName.Length == 0)
-                            //    fileName = "index.html";
-
                             if (urlId.EndsWith("/") || !fileName.Contains("."))
                                 fileName = defaultIndexFile;
-
-
 
                             localPath = uri.Host + "/" + uri.AbsolutePath.Replace(fileName, "");
                             localPath += HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
@@ -441,14 +444,15 @@ namespace com.erlange.wbmdl
                     try
                     {
                         System.Net.HttpWebResponse r = (System.Net.HttpWebResponse)ex.Response;
-                        if (r != null)
+                        using (r)
                         {
-                            filePath = path + "." + r.StatusCode.GetHashCode().ToString() + ".html";
-                            using (StreamReader reader = new StreamReader(r.GetResponseStream()))
+                            if (r != null)
                             {
-                                lock (new object())
+                                filePath = path + "." + r.StatusCode.GetHashCode().ToString() + ".html";
+                                using (StreamReader reader = new StreamReader(r.GetResponseStream()))
                                 {
-                                    File.CreateText(filePath).WriteLine(reader.ReadToEnd());
+                                    lock (new object())
+                                        File.CreateText(filePath).WriteLine(reader.ReadToEnd());
                                 }
                             }
                         }
@@ -490,7 +494,7 @@ namespace com.erlange.wbmdl
                     errorCount++;
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
-                    Console.WriteLine("Error message: " + ex.Source + "; " + ex.ToString() + "; " + ex.StackTrace);
+                    Console.WriteLine("Error message: " + ex.Message );
                     //Console.WriteLine("Error message: " + ex.Source + "; " + ex.ToString() + "; " + ex.StackTrace);
 
                     Console.ResetColor();
@@ -640,8 +644,6 @@ namespace com.erlange.wbmdl
     class Options
     {
 
-        //[Option('u', "url", HelpText = "The URL of the archived web site", Required = true)]
-        //public string Url { get; set; }
         [Value(0, HelpText = "The URL of the archived web site", MetaName = "url", Required =true)]
         public string Url { get; set; }
 
@@ -680,10 +682,6 @@ namespace com.erlange.wbmdl
 
         [Option('L', "List", HelpText = "Displays only the list in a JSON format with the archived timestamps, does not download anything.")]
         public bool ListOnly { get; set; }
-
-
-        //[Option('v', "verbose", Hidden = true, HelpText = "Verbose mode. Won't display progress status. Only displays completion status.")]
-        //public bool Verbose { get; set; }
 
     }
 

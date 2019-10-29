@@ -1,5 +1,7 @@
 > :warning: This `README` file is currently under construction.  It may change over times.
-# Wayback Machine Downloader
+
+
+# ![wbm-dl logo](wbm-dl.png "wbm-dl logo") Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
 
 
@@ -34,7 +36,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
-* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip) or chose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
+* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
 * Download the [ZIP file](https://github.com/erlange/wbm-dl/archive/master.zip) or clone this repository:
     ```
     mkdir [your-directory]
@@ -105,9 +107,9 @@ http://erlange.github.com
 
   -e, --exact    Downloads only the url provided and not the full site.
 
-  -O, --Only       Restrict downloading to urls that match this filter.
+  -O, --Only     Restrict downloading to urls that match this filter.
 
-  -X, --eXclude    Skip downloading of urls that match this filter.
+  -X, --eXclude  Skip downloading of urls that match this filter.
 
   -L, --list     Displays only the list in a JSON format with the archived timestamps, does not download anything
 
@@ -358,6 +360,25 @@ The JSON-formatted log file contains metadata as follows:
     Contains full path in the output directory where the file is saved.  If this value is empty an error might have occured.  You can then consult the `ErrorMsg` to examine the error and use the `Source` to manually download the individual file.
 * `Time`    
     The time the `Source` responds to the request. The time is in `yyyyMMdd hh:mm:ss` .NET format and might not conform to the standard JSON datetime format.
+
+## Considerations 
+A website archive is nothing but gets bigger. 
+It can get so big with millions of files.
+Certain aspects must therefore come into considerations.
+
+
+It is always advisable to limit the downloads each session with filtering options, including, but not limited to:
+- Filtering by certain timestamps with `-f` or `-t` options
+- Filtering by certain files with `-O` option
+- Do not download what you don't need with `-X` option
+- Minimize the number of simultaneous download by using small number to the `-c` option
+
+
+It is a good ettiquete to crawl politely.  
+Avoid mass-scraping by overloading them with too many requests for too many big files as this will surely hurt the server.
+If this occurs too often, they might take measures to block downloader tools such as this one, and in the long run, might lead to anti-scraping legal actions.
+
+That said. So download wisely.
 
 ## Contributing
 Contributions are welcome.  Just pull an issue or pull request from GitHub.

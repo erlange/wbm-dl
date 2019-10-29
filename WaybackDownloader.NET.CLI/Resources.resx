@@ -117,19 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="from" xml:space="preserve">
-    <value>-from @@ From timestamp. Use 1 to 14 digit with the format: yyyyMMddhhmmss </value>
-  </data>
-  <data name="list" xml:space="preserve">
-    <value>-l @@ Only display the URL, won't be downloaded. </value>
-  </data>
-  <data name="o" xml:space="preserve">
-    <value>-o @@ Output/destination local path to which you wish to save </value>
-  </data>
-  <data name="to" xml:space="preserve">
-    <value>-to @@ To timestamp. Use 1 to 14 digit for with the format: yyyyMMddhhmmss</value>
-  </data>
-  <data name="url" xml:space="preserve">
-    <value>-url @@ The URL of the archived web site. Must omit the prefix http:// or https://</value>
-  </data>
 </root>
