@@ -1,7 +1,8 @@
 > :warning: This `README` file is currently under construction.  It may change over times.
 
 
-# ![wbm-dl logo](wbm-dl.png "wbm-dl logo") Wayback Machine Downloader
+![wbm-dl logo](wbm-dl.png "wbm-dl logo") 
+# Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
 
 
@@ -29,6 +30,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 * [**Log Files**](#log-files)
   * [Log File Metadata](#log-file-metadata)
 * [**Contributing**](#contributing)
+* [**Considerations**](#considerations)
 
 ## Requirements
 1. .NET Framework 4.0 or newer.
@@ -362,8 +364,7 @@ The JSON-formatted log file contains metadata as follows:
     The time the `Source` responds to the request. The time is in `yyyyMMdd hh:mm:ss` .NET format and might not conform to the standard JSON datetime format.
 
 ## Considerations 
-A website archive is nothing but gets bigger. 
-It can get so big with millions of files.
+A website archive is nothing but gets bigger. It can get so big with millions of files.
 Certain aspects must therefore come into considerations.
 
 
