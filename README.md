@@ -29,8 +29,10 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
   * [Displaying the File List Without Downloading](#displaying-the-file-list-Without-downloading)
 * [**Log Files**](#log-files)
   * [Log File Metadata](#log-file-metadata)
-* [**Contributing**](#contributing)
 * [**Considerations**](#considerations)
+  * [Avoid Mass-Scraping](#avoid-mass-scraping)
+  * [Windows Long Filename Limitation](#windows-long-filename-limitation)
+* [**Contributing**](#contributing)
 
 ## Requirements
 1. .NET Framework 4.0 or newer.
@@ -364,7 +366,8 @@ The JSON-formatted log file contains metadata as follows:
     The time the `Source` responds to the request. The time is in `yyyyMMdd hh:mm:ss` .NET format and might not conform to the standard JSON datetime format.
 
 ## Considerations 
-A website archive is nothing but gets bigger. It can get so big with millions of files.
+### Avoid Mass-Scraping
+Your archived website gets none but bigger over time. It can get so big with millions of files.
 Certain aspects must therefore come into considerations.
 
 
@@ -381,7 +384,14 @@ If this occurs too often, they might take measures to block downloader tools suc
 
 That said. So download wisely.
 
+### Windows Long Filename Limitation
+Windows has maximum of 248 characters on a directory path while a URL doesn't.
+This can lead to error due to this limitation and your files are not downloaded.
+In this case you can examine the log file and download manually from the source URL provided.
+
 ## Contributing
 Contributions are welcome.  Just pull an issue or pull request from GitHub.
 
 
+## 
+Copyright &copy; 2018 - eri.airlangga@gmail.com

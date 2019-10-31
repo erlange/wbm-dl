@@ -184,7 +184,8 @@ namespace com.erlange.wbmdl
                 finish = DateTime.Now;
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Operation completed in " + finish.Subtract(start).TotalSeconds.ToString("0.#0") + "s." );
-                Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " item(s) saved in " + Path.GetFullPath(outDir));
+                //Console.WriteLine("Total " + Directory.EnumerateFiles(Path.GetFullPath(outDir), "*.*", SearchOption.AllDirectories).Count() + " item(s) saved in " + Path.GetFullPath(outDir));
+                Console.WriteLine("Total " + archiveCount + " item(s) saved in " + Path.GetFullPath(outDir));
                 Console.WriteLine("Error: " + errorCount + " item(s).");
                 Console.WriteLine("Logs saved in: " + Path.GetFullPath(outDir + logSubDir));
                 if (errorCount > 0)
@@ -495,8 +496,6 @@ namespace com.erlange.wbmdl
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("(Error not downloaded) " + archive.Timestamp + " " + archive.Original);
                     Console.WriteLine("Error message: " + ex.Message );
-                    //Console.WriteLine("Error message: " + ex.Source + "; " + ex.ToString() + "; " + ex.StackTrace);
-
                     Console.ResetColor();
                     logs.Add(new Log()
                     {
@@ -504,7 +503,7 @@ namespace com.erlange.wbmdl
                         Original = archive.Original,
                         Source = archive.UrlId,
                         Status = "",
-                        ErrorMsg = "Failed. Digest: " + archive.Digest + ". StatusCode: " + archive.StatusCode + ". Source: " + ex.Source + "; " + ex.ToString(),
+                        ErrorMsg = "Failed. Digest: " + archive.Digest + ". StatusCode: " + archive.StatusCode + ". Source: " + ex.Message + "; " + ex.ToString(),
                         Target = "",
                         Time = DateTime.Now.ToString("yyyyMMdd hh:mm:ss")
                     });
