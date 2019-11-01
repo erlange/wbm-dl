@@ -31,6 +31,7 @@ namespace com.erlange.wbmdl
         static readonly string defaultIndexFile = "index.html";
         static readonly object threadLocker = new object();
         static readonly object errorLocker = new object();
+        static readonly object logLocker = new object();
         static int archiveCount, errorCount, totalCount;
         static List<Log> logs = new List<Log>();
 
@@ -387,6 +388,20 @@ namespace com.erlange.wbmdl
                 File.WriteAllText(logPath + hostName + ".log.csv", logs.ToCsv());
             else if (extension == FileType.JSON)
                 File.WriteAllText(logPath + hostName + ".log.json", logs.ToJson());
+        }
+
+        static void SaveLog(Log log, FileType extension, string path)
+        {
+            System.Uri uri = new Uri(logs.FirstOrDefault().Original);
+            string hostName = uri.Host;
+            string logPath = path + logSubDir;
+            Directory.CreateDirectory(logPath);
+
+            //TODO: write log per line using StreamWriter
+            //if (extension == FileType.CSV)
+            //    File.WriteAllText(logPath + hostName + ".log.csv", logs.ToCsv());
+            //else if (extension == FileType.JSON)
+            //    File.WriteAllText(logPath + hostName + ".log.json", logs.ToJson());
         }
 
         enum FileType
