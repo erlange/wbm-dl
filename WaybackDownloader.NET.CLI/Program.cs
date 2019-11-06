@@ -14,6 +14,7 @@ using CommandLine;
 using System.Web;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using System.Threading;
 
 namespace com.erlange.wbmdl
@@ -276,6 +277,7 @@ namespace com.erlange.wbmdl
                 request.Method = "GET";
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
+                    
                     using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
                     {
                         string line, original, urlId, timestamp, fileName, localPath, localPathTimestamp;
@@ -286,11 +288,19 @@ namespace com.erlange.wbmdl
                             timestamp = line.Split(' ')[2];
                             fileName = urlId.Split('/')[urlId.Split('/').Length - 1].Split('?')[0];
                             original = @line.Split(' ')[3];
-
+                            
                             uri = new Uri(original);
+
 
                             if (urlId.EndsWith("/") || !fileName.Contains("."))
                                 fileName = defaultIndexFile;
+
+                            
+                            if (!string.IsNullOrEmpty(response.GetResponseHeader("content-disposition")) )
+                            {
+                                System.Net.Mime.ContentDisposition cd = new System.Net.Mime.ContentDisposition(response.GetResponseHeader("content-disposition"));
+                                fileName = cd.FileName;
+                            }
 
                             localPath = uri.Host + "/" + uri.AbsolutePath.Replace(fileName, "");
                             localPath += HttpUtility.UrlEncode(uri.Query.Replace("?", ""));
@@ -413,6 +423,7 @@ namespace com.erlange.wbmdl
             {
                 using (WebClient client = new WebClient())
                 {
+                    //client.DownloadFileCompleted += Client_DownloadFileCompleted;
                     foreach (Archive archive in archives)
                     {
                         uri = new Uri(archive.Original);
@@ -422,8 +433,16 @@ namespace com.erlange.wbmdl
                 }
             }
         }
+
+        private static void Client_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         static void DownloadSingleArchive(WebClient client, Archive archive, string path, bool isAllHttpStatus)
         {
+
+            
             string dirPath = path.Replace(archive.Filename, "");
             string filePath = path;
             try
@@ -432,6 +451,16 @@ namespace com.erlange.wbmdl
                     Directory.CreateDirectory(dirPath);
 
                 client.DownloadFile(archive.UrlId, filePath);
+                if (!string.IsNullOrEmpty(client.ResponseHeaders["Content-Disposition"]))
+                {
+                    ContentDisposition cd = new ContentDisposition(client.ResponseHeaders["Content-Disposition"]);
+                    string cdFilePath = System.IO.Path.Combine(dirPath, cd.FileName);
+                    if (System.IO.File.Exists(cdFilePath))
+                        File.Delete(cdFilePath);
+
+                    System.IO.File.Move(filePath, cdFilePath);
+                    filePath = cdFilePath;
+                }
 
                 lock (threadLocker)
                     archiveCount++;

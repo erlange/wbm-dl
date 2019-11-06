@@ -1,0 +1,7 @@
+http://web.archive.org/cdx/search/cdx?url=printabrick.org/*&fl=original,mimetype&collapse=digest&pageSize=1&gzip=false&filter=statuscode:200&from=2019&to=2019&filter=mimetype:^.*\b(application/zip).*\b$
+
+http://web.archive.org/cdx/search/cdx?url=printabrick.org/*&fl=original,mimetype&collapse=digest&pageSize=1&gzip=false&filter=statuscode:200&from=2019&to=2019&limit=10&filter=mimetype:^.*\b(application/zip).*\b$
+
+http://web.archive.org/cdx/search/cdx?url=printabrick.org/*&fl=timestamp,original,mimetype&collapse=digest&pageSize=1&gzip=false&filter=statuscode:200&from=2019&to=2019&filter=mimetype:^.*\b(application/zip).*\b$&output=json&limit=20
+
+http://web.archive.org/cdx/search/cdx?url=printabrick.org/*&fl=timestamp,original,mimetype&collapse=digest&pageSize=1&gzip=false&filter=statuscode:200&from=2019&to=2019&filter=mimetype:^.*\b(application/zip).*\b$&output=json&limit=20
