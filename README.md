@@ -40,7 +40,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
-* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.1/wbm-dl.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
+* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.5/wbm-dl.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
 * Download the [ZIP file](https://github.com/erlange/wbm-dl/archive/master.zip) or clone this repository:
     ```
     mkdir [your-directory]
