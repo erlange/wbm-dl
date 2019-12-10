@@ -11,6 +11,8 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 
 * [**Requirements**](#requirements)
 * [**Installation**](#installation)
+  * [Stand Alone Exexutable](#Stand-Alone-Exexutable)
+  * [Source Code](#Source-Code)
 * [**Basic Usage**](#basic-usage)
   * [Specifying the URL to Download](#specifying-the-url-to-download)
   * [Output Directory](#output-directory)
@@ -40,7 +42,10 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
+### Stand Alone Exexutable
 * Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.5/wbm-dl.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
+
+### Source Code
 * Download the [ZIP file](https://github.com/erlange/wbm-dl/archive/master.zip) or clone this repository:
     ```
     mkdir [your-directory]
