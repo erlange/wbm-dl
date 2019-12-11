@@ -38,7 +38,7 @@ A C# implementation of wayback machine downloader.  Download an entire archived 
 
 ## Requirements
 1. .NET Framework 4.0 or newer.
-2. For development use Visual Studio 2010 or newer.
+2. For development use Visual Studio 2010 or newer. You can [download the latest version of Visual Studio here.](https://visualstudio.microsoft.com/downloads/) The Visual Studio Community Edition is free.
 3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
