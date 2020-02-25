@@ -1,6 +1,3 @@
-> :warning: This `README` file is currently under construction.  It may change over times.
-
-
 ![wbm-dl logo](wbm-dl.png "wbm-dl logo") 
 # Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
