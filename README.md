@@ -2,9 +2,11 @@
 # Wayback Machine Downloader
 A C# implementation of wayback machine downloader.  Download an entire archived website from the [Internet Archive Wayback Machine](http://web.archive.org/).
 
+For complete documentation you may want to consult the [Wiki page here.](https://github.com/erlange/wbm-dl/wiki)
 
-##### Table of Contents
 
+
+## Table of Contents
 
 * [**Requirements**](#requirements)
 * [**Installation**](#installation)
