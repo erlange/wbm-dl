@@ -450,6 +450,11 @@ namespace com.erlange.wbmdl
                 if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
 
+                //Workaround for invalid certificates
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+
                 client.DownloadFile(archive.UrlId, filePath);
                 if (!string.IsNullOrEmpty(client.ResponseHeaders["Content-Disposition"]))
                 {
