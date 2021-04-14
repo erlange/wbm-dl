@@ -42,7 +42,7 @@ For complete documentation you may want to consult the [Wiki page here.](https:/
 
 ## Installation
 ### Stand Alone Exexutable
-* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.5/wbm-dl.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
+* Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.6/wbm-dl.1.0.6.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
 
 ### Source Code
 * Download the [ZIP file](https://github.com/erlange/wbm-dl/archive/master.zip) or clone this repository:
