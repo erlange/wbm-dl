@@ -10,7 +10,7 @@ For complete documentation you may want to consult the [Wiki page here.](https:/
 
 * [**Requirements**](#requirements)
 * [**Installation**](#installation)
-  * [Stand Alone Exexutable](#Stand-Alone-Exexutable)
+  * [Stand Alone Executable](#Stand-Alone-Executable)
   * [Source Code](#Source-Code)
 * [**Basic Usage**](#basic-usage)
   * [Specifying the URL to Download](#specifying-the-url-to-download)
@@ -41,7 +41,7 @@ For complete documentation you may want to consult the [Wiki page here.](https:/
 3. This tool uses [Command Line Parser 2.6.0](http://github.com/commandlineparser/commandline) library.
 
 ## Installation
-### Stand Alone Exexutable
+### Stand Alone Executable
 * Download the latest executable [here](https://github.com/erlange/wbm-dl/releases/download/v0.6/wbm-dl.1.0.6.zip) or choose from the available versions [here](https://github.com/erlange/wbm-dl/releases) 
 
 ### Source Code
