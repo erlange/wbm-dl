@@ -11,7 +11,7 @@ If you prefer the flat version of this documentation [this way here.](https://gi
 * 📁[**Home**](https://github.com/erlange/wbm-dl/wiki)
 * 📁[**Requirements**](https://github.com/erlange/wbm-dl/wiki/02.-Requirements#requirements)
 * 📂[**Installation**](https://github.com/erlange/wbm-dl/wiki/03.-Installation#installation)
-  * 📄[Stand Alone Exexutable](https://github.com/erlange/wbm-dl/wiki/03.-Installation#Stand-Alone-Exexutable)
+  * 📄[Stand Alone Executable](https://github.com/erlange/wbm-dl/wiki/03.-Installation#Stand-Alone-Executable)
   * 📄[Source Code](https://github.com/erlange/wbm-dl/wiki/03.-Installation#Source-Code)
 * 📂[**Basic Usage**](https://github.com/erlange/wbm-dl/wiki/04.-Basic-Usage#basic-usage)
   * 📄[Specifying the URL to Download](https://github.com/erlange/wbm-dl/wiki/04.-Basic-Usage#specifying-the-url-to-download)
